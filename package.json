@@ -1,0 +1,24 @@
+{
+  "name": "vercel-demo-001",
+  "version": "1.0.0",
+  "description": "一个简单的 Vercel 演示项目",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build step required for static site'",
+    "start": "vercel dev"
+  },
+  "keywords": [
+    "vercel",
+    "demo",
+    "static-site",
+    "html",
+    "css",
+    "javascript"
+  ],
+  "author": "Rsers",
+  "license": "MIT",
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  }
+}
