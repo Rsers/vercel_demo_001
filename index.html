@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 50%, #45b7d1 100%);
@@ -20,7 +21,7 @@
             justify-content: center;
             color: white;
         }
-        
+
         .container {
             text-align: center;
             padding: 2rem;
@@ -30,7 +31,7 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             max-width: 600px;
         }
-        
+
         h1 {
             font-size: 3rem;
             margin-bottom: 1rem;
@@ -39,13 +40,13 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        
+
         p {
             font-size: 1.2rem;
             margin-bottom: 2rem;
             opacity: 0.9;
         }
-        
+
         .button {
             display: inline-block;
             padding: 12px 30px;
@@ -58,32 +59,32 @@
             transition: all 0.3s ease;
             margin: 0 10px;
         }
-        
+
         .button:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
-        
+
         .features {
             margin-top: 2rem;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 1rem;
         }
-        
+
         .feature {
             padding: 1rem;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        
+
         .feature h3 {
             font-size: 1.1rem;
             margin-bottom: 0.5rem;
         }
-        
+
         .feature p {
             font-size: 0.9rem;
             margin: 0;
@@ -91,16 +92,17 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>🚀 Vercel 演示</h1>
-        <p>欢迎来到我的第一个 Vercel 项目！这是一个简单的静态网站演示。</p>
-        
+        <p>欢迎来到我的第99个 Vercel 项目！这是一个简单的静态网站演示。</p>
+
         <div>
             <a href="https://vercel.com" class="button" target="_blank">访问 Vercel</a>
             <a href="https://github.com/Rsers/vercel_demo_001" class="button" target="_blank">查看源码</a>
         </div>
-        
+
         <div class="features">
             <div class="feature">
                 <h3>⚡ 快速部署</h3>
@@ -120,22 +122,22 @@
             </div>
         </div>
     </div>
-    
+
     <script>
         // 简单的交互效果
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const container = document.querySelector('.container');
-            
+
             // 添加鼠标移动效果
-            document.addEventListener('mousemove', function(e) {
+            document.addEventListener('mousemove', function (e) {
                 const x = (e.clientX / window.innerWidth) * 100;
                 const y = (e.clientY / window.innerHeight) * 100;
-                
+
                 container.style.background = `radial-gradient(circle at ${x}% ${y}%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%)`;
             });
-            
+
             // 添加点击效果
-            container.addEventListener('click', function() {
+            container.addEventListener('click', function () {
                 this.style.transform = 'scale(0.98)';
                 setTimeout(() => {
                     this.style.transform = 'scale(1)';
@@ -144,4 +146,5 @@
         });
     </script>
 </body>
+
 </html>
