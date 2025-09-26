@@ -1,12 +1,6 @@
 {
   "version": 2,
   "name": "vercel-demo-001",
-  "builds": [
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    }
-  ],
   "headers": [
     {
       "source": "/(.*)",
