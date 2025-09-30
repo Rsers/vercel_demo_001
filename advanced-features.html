@@ -312,7 +312,7 @@
             addLog('开始测试 Edge Function...', 'info');
 
             try {
-                const response = await fetch('/api/edge-demo');
+                const response = await fetch('/api/edge-simple');
                 const data = await response.json();
 
                 const resultHtml = `
@@ -351,43 +351,54 @@
             addLog('开始测试 Middleware...', 'info');
 
             try {
-                // 测试不同的路径来触发 middleware
-                const testPaths = ['/', '/admin', '/old-page'];
-                const results = [];
+                // 调用 Middleware 演示 API
+                const response = await fetch('/api/middleware-demo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer test-token' // 模拟认证
+                    }
+                });
 
-                for (const path of testPaths) {
-                    const response = await fetch(path);
-                    const headers = {};
+                const data = await response.json();
 
-                    // 获取自定义头部
-                    response.headers.forEach((value, key) => {
-                        if (key.startsWith('x-') || key.startsWith('X-')) {
-                            headers[key] = value;
-                        }
-                    });
-
-                    results.push({
-                        path: path,
-                        status: response.status,
-                        headers: headers
-                    });
+                if (!data.success) {
+                    throw new Error(data.message);
                 }
 
                 const resultHtml = `
                     <div class="status-badge status-success">SUCCESS</div>
-                    <h6>Middleware 测试结果:</h6>
-                    ${results.map(result => `
-                        <div class="mb-2">
-                            <strong>路径:</strong> ${result.path}<br>
-                            <strong>状态:</strong> ${result.status}<br>
-                            <strong>自定义头部:</strong>
-                            <ul>
-                                ${Object.entries(result.headers).map(([key, value]) =>
+                    <h6>Middleware 功能演示:</h6>
+                    <div class="mb-3">
+                        <strong>自定义头部:</strong>
+                        <ul>
+                            ${Object.entries(data.middleware.customHeaders).map(([key, value]) =>
                     `<li>${key}: ${value}</li>`
                 ).join('')}
-                            </ul>
-                        </div>
-                    `).join('')}
+                        </ul>
+                    </div>
+                    <div class="mb-3">
+                        <strong>地理位置:</strong>
+                        <ul>
+                            <li>国家: ${data.middleware.locationInfo.country}</li>
+                            <li>城市: ${data.middleware.locationInfo.city}</li>
+                            <li>地区: ${data.middleware.locationInfo.region}</li>
+                        </ul>
+                    </div>
+                    <div class="mb-3">
+                        <strong>A/B 测试:</strong> ${data.middleware.abTest.message}
+                    </div>
+                    <div class="mb-3">
+                        <strong>认证状态:</strong> ${data.middleware.authentication.message}
+                    </div>
+                    <div class="mb-3">
+                        <strong>安全头部:</strong>
+                        <ul>
+                            ${Object.entries(data.middleware.security).map(([key, value]) =>
+                    `<li>${key}: ${value}</li>`
+                ).join('')}
+                        </ul>
+                    </div>
                 `;
 
                 showResult('middleware-result', resultHtml, 'success');

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 测试页面</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .test-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .success {
+            border-color: #28a745;
+            background-color: #d4edda;
+        }
+
+        .error {
+            border-color: #dc3545;
+            background-color: #f8d7da;
+        }
+
+        .info {
+            border-color: #17a2b8;
+            background-color: #d1ecf1;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🧪 API 功能测试</h1>
+    <p>测试 Vercel 高级功能的 API 接口</p>
+
+    <div class="test-card">
+        <h3>🌐 Edge Function 测试</h3>
+        <p>测试边缘计算功能</p>
+        <button class="btn" onclick="testEdgeFunction()">测试 Edge Function</button>
+        <div id="edge-result" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-card">
+        <h3>🔄 Middleware 测试</h3>
+        <p>测试中间件功能</p>
+        <button class="btn" onclick="testMiddleware()">测试 Middleware</button>
+        <div id="middleware-result" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-card">
+        <h3>⏰ Cron Job 测试</h3>
+        <p>测试定时任务功能</p>
+        <button class="btn" onclick="testCronJob()">测试 Cron Job</button>
+        <div id="cron-result" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-card">
+        <h3>🔗 Webhook 测试</h3>
+        <p>测试事件驱动功能</p>
+        <button class="btn" onclick="testWebhook()">测试 Webhook</button>
+        <div id="webhook-result" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-card">
+        <h3>🗄️ 数据库 API 测试</h3>
+        <p>测试数据库操作功能</p>
+        <button class="btn" onclick="testDatabase()">测试数据库 API</button>
+        <div id="database-result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        function showResult(elementId, content, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `result ${type}`;
+            element.textContent = content;
+        }
+
+        async function testEdgeFunction() {
+            showResult('edge-result', '正在测试 Edge Function...', 'info');
+
+            try {
+                const response = await fetch('/api/edge-simple');
+                const data = await response.json();
+
+                showResult('edge-result', JSON.stringify(data, null, 2), 'success');
+            } catch (error) {
+                showResult('edge-result', `错误: ${error.message}`, 'error');
+            }
+        }
+
+        async function testMiddleware() {
+            showResult('middleware-result', '正在测试 Middleware...', 'info');
+
+            try {
+                const response = await fetch('/api/middleware-demo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer test-token'
+                    }
+                });
+                const data = await response.json();
+
+                showResult('middleware-result', JSON.stringify(data, null, 2), 'success');
+            } catch (error) {
+                showResult('middleware-result', `错误: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCronJob() {
+            showResult('cron-result', '正在测试 Cron Job...', 'info');
+
+            try {
+                const response = await fetch('/api/cron-cleanup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-vercel-cron': 'true'
+                    }
+                });
+                const data = await response.json();
+
+                showResult('cron-result', JSON.stringify(data, null, 2), 'success');
+            } catch (error) {
+                showResult('cron-result', `错误: ${error.message}`, 'error');
+            }
+        }
+
+        async function testWebhook() {
+            showResult('webhook-result', '正在测试 Webhook...', 'info');
+
+            try {
+                const response = await fetch('/api/webhook-handler', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-webhook-source': 'test',
+                        'x-webhook-signature': 'test-signature'
+                    },
+                    body: JSON.stringify({
+                        type: 'user_registration',
+                        source: 'test',
+                        data: {
+                            userId: 123,
+                            name: '测试用户',
+                            email: 'test@example.com'
+                        }
+                    })
+                });
+                const data = await response.json();
+
+                showResult('webhook-result', JSON.stringify(data, null, 2), 'success');
+            } catch (error) {
+                showResult('webhook-result', `错误: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDatabase() {
+            showResult('database-result', '正在测试数据库 API...', 'info');
+
+            try {
+                const response = await fetch('/api/db-working', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'select'
+                    })
+                });
+                const data = await response.json();
+
+                showResult('database-result', JSON.stringify(data, null, 2), 'success');
+            } catch (error) {
+                showResult('database-result', `错误: ${error.message}`, 'error');
+            }
+        }
+
+        // 页面加载完成提示
+        window.addEventListener('load', () => {
+            console.log('API 测试页面已加载');
+            console.log('注意: 这些 API 需要部署到 Vercel 才能正常工作');
+            console.log('当前使用 Python HTTP 服务器，只能测试静态文件');
+        });
+    </script>
+</body>
+
+</html>

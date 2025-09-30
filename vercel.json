@@ -2,11 +2,6 @@
   "version": 2,
   "name": "vercel-demo-001",
   "outputDirectory": ".",
-  "functions": {
-    "api/edge-demo.js": {
-      "runtime": "edge"
-    }
-  },
   "crons": [
     {
       "path": "/api/cron-cleanup",

@@ -78,6 +78,10 @@
             border-left-color: #fd79a8;
         }
 
+        .api-card:nth-child(6) {
+            border-left-color: #fdcb6e;
+        }
+
         .api-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
@@ -110,6 +114,10 @@
 
         .api-card:nth-child(5) h3 {
             color: #fd79a8;
+        }
+
+        .api-card:nth-child(6) h3 {
+            color: #fdcb6e;
         }
 
         .api-card p {
@@ -156,6 +164,10 @@
 
         .api-card:nth-child(5) .api-features li::before {
             color: #fd79a8;
+        }
+
+        .api-card:nth-child(6) .api-features li::before {
+            color: #fdcb6e;
         }
 
         .api-btn {
@@ -209,6 +221,14 @@
 
         .api-btn.monitoring:hover {
             background: #e84393;
+        }
+
+        .api-btn.test {
+            background: #fdcb6e;
+        }
+
+        .api-btn.test:hover {
+            background: #e17055;
         }
 
 
@@ -338,6 +358,21 @@
                         <li>历史数据查看</li>
                     </ul>
                     <a href="analytics-dashboard.html" class="api-btn monitoring">查看监控面板</a>
+                </div>
+
+                <!-- API 测试工具 -->
+                <div class="api-card">
+                    <h3>🧪 API 测试工具</h3>
+                    <p>测试所有 API 接口的功能，验证系统运行状态。</p>
+                    <ul class="api-features">
+                        <li>Edge Function 测试</li>
+                        <li>Middleware 功能测试</li>
+                        <li>Cron Job 定时任务测试</li>
+                        <li>Webhook 事件测试</li>
+                        <li>数据库 API 测试</li>
+                        <li>实时结果展示</li>
+                    </ul>
+                    <a href="test-apis.html" class="api-btn test">测试 API 接口</a>
                 </div>
             </div>
 
