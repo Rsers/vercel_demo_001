@@ -321,7 +321,7 @@
         // API 调用函数
         async function callAPI(action, data = null) {
             try {
-                const response = await fetch('/api/db-demo', {
+                const response = await fetch('/api/db-simple', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -329,7 +329,21 @@
                     body: JSON.stringify({ action, data })
                 });
 
-                const result = await response.json();
+                // 先获取原始文本用于调试
+                const text = await response.text();
+                console.log('API 响应:', text);
+
+                let result;
+                try {
+                    result = JSON.parse(text);
+                } catch (e) {
+                    console.error('JSON 解析错误:', e);
+                    return {
+                        success: false,
+                        error: '服务器响应格式错误: ' + text.substring(0, 100)
+                    };
+                }
+
                 return result;
             } catch (error) {
                 console.error('API 调用错误:', error);
