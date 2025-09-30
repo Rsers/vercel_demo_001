@@ -39,6 +39,12 @@ export default async function handler(req, res) {
                     timestamp: new Date().toISOString()
                 });
 
+            case 'init':
+                return res.status(200).json({
+                    success: true,
+                    message: '数据库初始化成功（模拟）'
+                });
+
             case 'select':
                 return res.status(200).json({
                     success: true,
