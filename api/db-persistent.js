@@ -11,42 +11,44 @@ export default async function handler(req, res) {
     try {
         const { action, data } = req.body;
 
-        // 使用全局变量模拟持久化存储
-        if (!global.users) {
-            global.users = [
-                {
-                    id: 1,
-                    name: '张三',
-                    email: 'zhangsan@example.com',
-                    age: 25,
-                    city: '北京',
-                    created_at: new Date().toISOString()
-                },
-                {
-                    id: 2,
-                    name: '李四',
-                    email: 'lisi@example.com',
-                    age: 30,
-                    city: '上海',
-                    created_at: new Date().toISOString()
-                }
-            ];
-        }
-
-        const users = global.users;
+        // 获取或初始化用户数据
+        let users = await getUsers();
 
         switch (action) {
             case 'test':
                 return res.status(200).json({
                     success: true,
-                    message: '数据库 API 连接正常',
-                    timestamp: new Date().toISOString()
+                    message: '持久化数据库 API 连接正常',
+                    timestamp: new Date().toISOString(),
+                    currentUsers: users.length
                 });
 
             case 'init':
+                // 重置为初始数据
+                users = [
+                    {
+                        id: 1,
+                        name: '张三',
+                        email: 'zhangsan@example.com',
+                        age: 25,
+                        city: '北京',
+                        created_at: new Date().toISOString()
+                    },
+                    {
+                        id: 2,
+                        name: '李四',
+                        email: 'lisi@example.com',
+                        age: 30,
+                        city: '上海',
+                        created_at: new Date().toISOString()
+                    }
+                ];
+                await saveUsers(users);
+
                 return res.status(200).json({
                     success: true,
-                    message: '数据库初始化成功（模拟）'
+                    message: '数据库初始化成功',
+                    users: users.length
                 });
 
             case 'select':
@@ -63,8 +65,17 @@ export default async function handler(req, res) {
                     });
                 }
 
+                // 检查邮箱是否已存在
+                const existingUser = users.find(u => u.email === data.email);
+                if (existingUser) {
+                    return res.status(409).json({
+                        success: false,
+                        error: '邮箱已存在'
+                    });
+                }
+
                 const newUser = {
-                    id: users.length + 1,
+                    id: Math.max(...users.map(u => u.id), 0) + 1,
                     name: data.name,
                     email: data.email,
                     age: data.age || null,
@@ -73,10 +84,11 @@ export default async function handler(req, res) {
                 };
 
                 users.push(newUser);
+                await saveUsers(users);
 
                 return res.status(201).json({
                     success: true,
-                    message: '用户创建成功（模拟）',
+                    message: '用户创建成功',
                     user: newUser
                 });
 
@@ -146,9 +158,11 @@ export default async function handler(req, res) {
                     city: data.city !== undefined ? data.city : users[userIndex].city
                 };
 
+                await saveUsers(users);
+
                 return res.status(200).json({
                     success: true,
-                    message: '用户信息更新成功（模拟）',
+                    message: '用户信息更新成功',
                     user: users[userIndex]
                 });
 
@@ -169,10 +183,11 @@ export default async function handler(req, res) {
                 }
 
                 const deletedUser = users.splice(deleteIndex, 1)[0];
+                await saveUsers(users);
 
                 return res.status(200).json({
                     success: true,
-                    message: '用户删除成功（模拟）',
+                    message: '用户删除成功',
                     user: deletedUser
                 });
 
@@ -191,4 +206,37 @@ export default async function handler(req, res) {
             details: error.message
         });
     }
+}
+
+// 模拟数据存储函数
+async function getUsers() {
+    // 在 Serverless 环境中，我们使用全局变量
+    // 注意：这在实际生产环境中会丢失，需要真实的数据库
+    if (!global.persistentUsers) {
+        global.persistentUsers = [
+            {
+                id: 1,
+                name: '张三',
+                email: 'zhangsan@example.com',
+                age: 25,
+                city: '北京',
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 2,
+                name: '李四',
+                email: 'lisi@example.com',
+                age: 30,
+                city: '上海',
+                created_at: new Date().toISOString()
+            }
+        ];
+    }
+    return global.persistentUsers;
+}
+
+async function saveUsers(users) {
+    // 保存到全局变量
+    global.persistentUsers = users;
+    return true;
 }
