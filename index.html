@@ -4,147 +4,304 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vercel 演示项目</title>
+    <title>Vercel API Demo</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 50%, #45b7d1 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
         }
 
         .container {
-            text-align: center;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(45deg, #fff, #f0f0f0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #333;
+            text-align: center;
         }
 
-        p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            opacity: 0.9;
+        .api-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
         }
 
-        .button {
-            display: inline-block;
-            padding: 12px 30px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50px;
+        .api-section h3 {
+            margin-top: 0;
+            color: #007bff;
+        }
+
+        .code {
+            background: #f1f1f1;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        .test-button {
+            background: #007bff;
             color: white;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            margin: 0 10px;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
         }
 
-        .button:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        .test-button:hover {
+            background: #0056b3;
         }
 
-        .features {
-            margin-top: 2rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
+        .response {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
         }
 
-        .feature {
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .form-group {
+            margin: 15px 0;
         }
 
-        .feature h3 {
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
 
-        .feature p {
-            font-size: 0.9rem;
-            margin: 0;
-            opacity: 0.8;
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .method-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .get {
+            background: #28a745;
+            color: white;
+        }
+
+        .post {
+            background: #007bff;
+            color: white;
+        }
+
+        .put {
+            background: #ffc107;
+            color: black;
+        }
+
+        .delete {
+            background: #dc3545;
+            color: white;
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>🚀 Vercel 演示</h1>
-        <p>欢迎来到我的第777个 Vercel 项目！这是一个简单的静态网站演示。</p>
-        <p style="color: #ffd700; font-weight: bold; margin-top: 1rem;">🚀 这是 Preview 环境部署！</p>
+        <h1>🚀 Vercel API 演示</h1>
+        <p>这个页面展示了如何使用 Vercel 的 Serverless Functions 创建 API 接口。</p>
 
-        <div>
-            <a href="https://vercel.com" class="button" target="_blank">访问 Vercel</a>
-            <a href="https://github.com/Rsers/vercel_demo_001" class="button" target="_blank">查看源码</a>
+        <!-- Hello API -->
+        <div class="api-section">
+            <h3><span class="method-badge get">GET</span>/api/hello</h3>
+            <p>简单的问候 API，支持查询参数。</p>
+            <div class="code">
+                // 请求示例
+                fetch('/api/hello?name=张三')
+                .then(response => response.json())
+                .then(data => console.log(data));
+            </div>
+            <div class="form-group">
+                <label>姓名:</label>
+                <input type="text" id="helloName" placeholder="输入你的姓名" value="张三">
+            </div>
+            <button class="test-button" onclick="testHelloAPI()">测试 Hello API</button>
+            <div id="helloResponse" class="response" style="display: none;"></div>
         </div>
 
-        <div class="features">
-            <div class="feature">
-                <h3>⚡ 快速部署</h3>
-                <p>一键部署到全球 CDN</p>
+        <!-- Users API -->
+        <div class="api-section">
+            <h3><span class="method-badge post">POST</span>/api/users</h3>
+            <p>创建用户数据的 API。</p>
+            <div class="code">
+                // 请求示例
+                fetch('/api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                name: '张三',
+                email: 'zhangsan@example.com',
+                message: '你好世界'
+                })
+                })
+                .then(response => response.json())
+                .then(data => console.log(data));
             </div>
-            <div class="feature">
-                <h3>🔄 自动更新</h3>
-                <p>Git 推送自动部署</p>
+            <div class="form-group">
+                <label>姓名:</label>
+                <input type="text" id="userName" placeholder="输入姓名" value="张三">
             </div>
-            <div class="feature">
-                <h3>📱 响应式</h3>
-                <p>完美适配所有设备</p>
+            <div class="form-group">
+                <label>邮箱:</label>
+                <input type="email" id="userEmail" placeholder="输入邮箱" value="zhangsan@example.com">
             </div>
-            <div class="feature">
-                <h3>🌍 全球加速</h3>
-                <p>边缘计算网络</p>
+            <div class="form-group">
+                <label>消息:</label>
+                <textarea id="userMessage" placeholder="输入消息">你好世界</textarea>
             </div>
+            <button class="test-button" onclick="testUsersAPI()">测试 Users API</button>
+            <div id="usersResponse" class="response" style="display: none;"></div>
+        </div>
+
+        <!-- Tasks API -->
+        <div class="api-section">
+            <h3><span class="method-badge get">GET</span><span class="method-badge post">POST</span><span
+                    class="method-badge put">PUT</span><span class="method-badge delete">DELETE</span>/api/tasks</h3>
+            <p>任务管理 API，支持所有 HTTP 方法。</p>
+            <div class="code">
+                // GET - 获取所有任务
+                fetch('/api/tasks')
+
+                // POST - 创建任务
+                fetch('/api/tasks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: '新任务', description: '任务描述' })
+                })
+
+                // PUT - 更新任务
+                fetch('/api/tasks?id=1', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: '更新的任务', completed: true })
+                })
+
+                // DELETE - 删除任务
+                fetch('/api/tasks?id=1', { method: 'DELETE' })
+            </div>
+            <button class="test-button" onclick="testTasksAPI('GET')">获取所有任务</button>
+            <button class="test-button" onclick="testTasksAPI('POST')">创建任务</button>
+            <button class="test-button" onclick="testTasksAPI('PUT')">更新任务</button>
+            <button class="test-button" onclick="testTasksAPI('DELETE')">删除任务</button>
+            <div id="tasksResponse" class="response" style="display: none;"></div>
         </div>
     </div>
 
     <script>
-        // 简单的交互效果
-        document.addEventListener('DOMContentLoaded', function () {
-            const container = document.querySelector('.container');
+        // 测试 Hello API
+        async function testHelloAPI() {
+            const name = document.getElementById('helloName').value;
+            const responseDiv = document.getElementById('helloResponse');
 
-            // 添加鼠标移动效果
-            document.addEventListener('mousemove', function (e) {
-                const x = (e.clientX / window.innerWidth) * 100;
-                const y = (e.clientY / window.innerHeight) * 100;
+            try {
+                const response = await fetch(`/api/hello?name=${encodeURIComponent(name)}`);
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+                responseDiv.style.display = 'block';
+            } catch (error) {
+                responseDiv.textContent = `错误: ${error.message}`;
+                responseDiv.style.display = 'block';
+            }
+        }
 
-                container.style.background = `radial-gradient(circle at ${x}% ${y}%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%)`;
-            });
+        // 测试 Users API
+        async function testUsersAPI() {
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            const message = document.getElementById('userMessage').value;
+            const responseDiv = document.getElementById('usersResponse');
 
-            // 添加点击效果
-            container.addEventListener('click', function () {
-                this.style.transform = 'scale(0.98)';
-                setTimeout(() => {
-                    this.style.transform = 'scale(1)';
-                }, 150);
-            });
-        });
+            try {
+                const response = await fetch('/api/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, email, message })
+                });
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+                responseDiv.style.display = 'block';
+            } catch (error) {
+                responseDiv.textContent = `错误: ${error.message}`;
+                responseDiv.style.display = 'block';
+            }
+        }
+
+        // 测试 Tasks API
+        async function testTasksAPI(method) {
+            const responseDiv = document.getElementById('tasksResponse');
+
+            try {
+                let response;
+                const options = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                };
+
+                switch (method) {
+                    case 'GET':
+                        response = await fetch('/api/tasks');
+                        break;
+                    case 'POST':
+                        options.method = 'POST';
+                        options.body = JSON.stringify({
+                            title: '新任务',
+                            description: '这是一个测试任务'
+                        });
+                        response = await fetch('/api/tasks', options);
+                        break;
+                    case 'PUT':
+                        options.method = 'PUT';
+                        options.body = JSON.stringify({
+                            title: '更新的任务',
+                            description: '任务已更新',
+                            completed: true
+                        });
+                        response = await fetch('/api/tasks?id=1', options);
+                        break;
+                    case 'DELETE':
+                        options.method = 'DELETE';
+                        response = await fetch('/api/tasks?id=1', options);
+                        break;
+                }
+
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+                responseDiv.style.display = 'block';
+            } catch (error) {
+                responseDiv.textContent = `错误: ${error.message}`;
+                responseDiv.style.display = 'block';
+            }
+        }
     </script>
 </body>
 

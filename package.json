@@ -18,7 +18,10 @@
   ],
   "author": "Rsers",
   "license": "MIT",
-  "devDependencies": {
+  "dependencies": {
     "vercel": "^32.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
   }
 }
