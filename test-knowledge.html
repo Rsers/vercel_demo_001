@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>知识库测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 3px;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>知识库功能测试</h1>
+
+    <div class="test-section">
+        <h3>1. 测试获取知识库</h3>
+        <button onclick="testGetKnowledge()">获取知识库</button>
+        <div id="getResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. 测试添加知识</h3>
+        <button onclick="testAddKnowledge()">添加测试知识</button>
+        <div id="addResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. 测试 RAG 检索</h3>
+        <button onclick="testRAGSearch()">测试 RAG 检索</button>
+        <div id="ragResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. 测试智能客服</h3>
+        <button onclick="testChat()">测试智能客服</button>
+        <div id="chatResult" class="result"></div>
+    </div>
+
+    <script>
+        async function testGetKnowledge() {
+            try {
+                const response = await fetch('/api/knowledge?action=get');
+                const data = await response.json();
+                document.getElementById('getResult').innerHTML =
+                    `<div class="${response.ok ? 'success' : 'error'}">
+                        <strong>状态:</strong> ${response.ok ? '成功' : '失败'}<br>
+                        <strong>数据:</strong> <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>`;
+            } catch (error) {
+                document.getElementById('getResult').innerHTML =
+                    `<div class="error">错误: ${error.message}</div>`;
+            }
+        }
+
+        async function testAddKnowledge() {
+            try {
+                const response = await fetch('/api/knowledge', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'add',
+                        category: 'test',
+                        content: '这是一个测试知识条目，用于验证添加功能是否正常工作。'
+                    })
+                });
+                const data = await response.json();
+                document.getElementById('addResult').innerHTML =
+                    `<div class="${response.ok ? 'success' : 'error'}">
+                        <strong>状态:</strong> ${response.ok ? '成功' : '失败'}<br>
+                        <strong>响应:</strong> <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>`;
+            } catch (error) {
+                document.getElementById('addResult').innerHTML =
+                    `<div class="error">错误: ${error.message}</div>`;
+            }
+        }
+
+        async function testRAGSearch() {
+            try {
+                const response = await fetch('/api/rag-search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query: '技术支持',
+                        context_type: 'all',
+                        max_results: 3
+                    })
+                });
+                const data = await response.json();
+                document.getElementById('ragResult').innerHTML =
+                    `<div class="${response.ok ? 'success' : 'error'}">
+                        <strong>状态:</strong> ${response.ok ? '成功' : '失败'}<br>
+                        <strong>检索结果:</strong> <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>`;
+            } catch (error) {
+                document.getElementById('ragResult').innerHTML =
+                    `<div class="error">错误: ${error.message}</div>`;
+            }
+        }
+
+        async function testChat() {
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: '你们的技术支持怎么样？',
+                        use_rag: true,
+                        context_type: 'all'
+                    })
+                });
+                const data = await response.json();
+                document.getElementById('chatResult').innerHTML =
+                    `<div class="${response.ok ? 'success' : 'error'}">
+                        <strong>状态:</strong> ${response.ok ? '成功' : '失败'}<br>
+                        <strong>AI 回答:</strong> ${data.response || '无回答'}<br>
+                        <strong>RAG 信息:</strong> ${data.rag_metadata ? `找到 ${data.rag_metadata.total_found} 条相关信息` : '无 RAG 信息'}<br>
+                        <strong>完整响应:</strong> <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>`;
+            } catch (error) {
+                document.getElementById('chatResult').innerHTML =
+                    `<div class="error">错误: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+
+</html>

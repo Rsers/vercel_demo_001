@@ -120,38 +120,48 @@ export default async function handler(req, res) {
 // RAG 检索增强生成
 async function performRAGRetrieval(query, contextType) {
   try {
-    // 调用内部 RAG 检索 API
-    const ragResponse = await fetch(`${process.env.VERCEL_URL || 'http://localhost:3000'}/api/rag-search`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query: query,
-        context_type: contextType,
-        max_results: 3,
-        similarity_threshold: 0.3
+    // 从文件系统读取知识库
+    const knowledgeBase = await loadKnowledgeBaseFromFile();
+
+    console.log(`🔍 执行 RAG 检索: "${query}", 知识库条目数: ${knowledgeBase.length}`);
+
+    // 1. 查询预处理
+    const processedQuery = preprocessQuery(query);
+
+    // 2. 语义相似度计算
+    const similarityScores = calculateSimilarityScores(processedQuery, global.knowledgeBase);
+
+    // 3. 过滤和排序
+    const filteredResults = similarityScores
+      .filter(item => {
+        // 按上下文类型过滤
+        if (contextType !== 'all' && item.knowledge.category !== contextType) {
+          return false;
+        }
+        // 按相似度阈值过滤
+        return item.similarity >= 0.3;
       })
-    });
+      .sort((a, b) => b.similarity - a.similarity)
+      .slice(0, 3);
 
-    if (!ragResponse.ok) {
-      console.warn('RAG 检索失败，使用基础检索');
-      return { context: '', metadata: null, found: false };
-    }
+    console.log(`📊 RAG 检索结果: ${filteredResults.length} 条匹配`);
 
-    const ragData = await ragResponse.json();
-
-    if (ragData.results && ragData.results.length > 0) {
-      const context = ragData.results.map(result =>
-        `[${result.category}] ${result.content} (相关度: ${result.similarity_score})`
+    if (filteredResults.length > 0) {
+      const context = filteredResults.map(item =>
+        `[${item.knowledge.category}] ${item.knowledge.content} (相关度: ${item.similarity.toFixed(2)})`
       ).join('\n');
 
       return {
         context: context,
         metadata: {
-          total_found: ragData.total_found,
-          confidence_score: ragData.confidence_score,
-          results: ragData.results
+          total_found: filteredResults.length,
+          confidence_score: calculateConfidenceScore(filteredResults),
+          results: filteredResults.map(item => ({
+            id: item.knowledge.id,
+            content: item.knowledge.content,
+            category: item.knowledge.category,
+            similarity_score: item.similarity
+          }))
         },
         found: true
       };
@@ -162,6 +172,122 @@ async function performRAGRetrieval(query, contextType) {
     console.error('RAG 检索错误:', error);
     return { context: '', metadata: null, found: false };
   }
+}
+
+// 从文件系统加载知识库
+async function loadKnowledgeBaseFromFile() {
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const knowledgeFilePath = path.join(process.cwd(), 'knowledge-base.json');
+
+    if (fs.existsSync(knowledgeFilePath)) {
+      const data = fs.readFileSync(knowledgeFilePath, 'utf8');
+      const knowledgeBase = JSON.parse(data);
+      console.log(`📚 从文件加载知识库，条目数: ${knowledgeBase.length}`);
+      return knowledgeBase;
+    } else {
+      console.log('📚 知识库文件不存在，返回空数组');
+      return [];
+    }
+  } catch (error) {
+    console.error('❌ 加载知识库失败:', error);
+    return [];
+  }
+}
+
+// 查询预处理
+function preprocessQuery(query) {
+  return {
+    original: query,
+    normalized: query.toLowerCase().trim(),
+    keywords: extractKeywords(query),
+    intent: classifyIntent(query)
+  };
+}
+
+// 提取关键词
+function extractKeywords(query) {
+  const commonWords = ['的', '是', '在', '有', '和', '与', '或', '如何', '什么', '怎么', '为什么'];
+  return query.toLowerCase()
+    .split(/[\s,，。！？]/)
+    .filter(word => word.length > 1 && !commonWords.includes(word));
+}
+
+// 意图分类
+function classifyIntent(query) {
+  const intents = {
+    product: ['产品', '功能', '特性', '版本', '价格'],
+    service: ['服务', '支持', '帮助', '联系', '客服'],
+    policy: ['政策', '条款', '保修', '退款', '隐私'],
+    technical: ['技术', 'API', '集成', '开发', '文档'],
+    faq: ['问题', '常见', '如何', '怎么', '为什么']
+  };
+
+  for (const [intent, keywords] of Object.entries(intents)) {
+    if (keywords.some(keyword => query.includes(keyword))) {
+      return intent;
+    }
+  }
+  return 'general';
+}
+
+// 计算相似度分数
+function calculateSimilarityScores(processedQuery, knowledgeBase) {
+  return knowledgeBase.map(knowledge => {
+    const similarity = calculateTextSimilarity(
+      processedQuery.normalized,
+      knowledge.content.toLowerCase(),
+      processedQuery.keywords,
+      knowledge.keywords || []
+    );
+
+    return {
+      knowledge,
+      similarity
+    };
+  });
+}
+
+// 文本相似度计算
+function calculateTextSimilarity(query, content, queryKeywords, contentKeywords) {
+  let score = 0;
+
+  // 1. 关键词匹配
+  const matchedKeywords = queryKeywords.filter(keyword =>
+    contentKeywords.includes(keyword) || content.includes(keyword)
+  );
+  score += matchedKeywords.length * 0.3;
+
+  // 2. 完整匹配
+  if (content.includes(query)) {
+    score += 0.8;
+  }
+
+  // 3. 部分匹配
+  const queryWords = query.split(' ');
+  const contentWords = content.split(' ');
+  const matchedWords = queryWords.filter(word =>
+    contentWords.some(contentWord => contentWord.includes(word))
+  );
+  score += matchedWords.length * 0.1;
+
+  // 4. 意图匹配
+  if (processedQuery.intent === 'general' || processedQuery.intent === knowledge.category) {
+    score += 0.2;
+  }
+
+  return Math.min(score, 1.0);
+}
+
+// 计算整体置信度分数
+function calculateConfidenceScore(results) {
+  if (results.length === 0) return 0;
+
+  const avgSimilarity = results.reduce((sum, result) => sum + result.similarity, 0) / results.length;
+  const resultCount = Math.min(results.length / 5, 1);
+
+  return Math.round((avgSimilarity * 0.7 + resultCount * 0.3) * 100) / 100;
 }
 
 // 构建系统提示词
