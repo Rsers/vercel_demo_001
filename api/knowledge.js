@@ -17,8 +17,15 @@ export default async function handler(req, res) {
     }
 
     // 简单的内存存储（生产环境建议使用数据库）
+    // 在 Vercel 环境中，每次请求可能重新初始化，所以我们使用一个更稳定的方式
     if (!global.knowledgeBase) {
-        global.knowledgeBase = [
+        global.knowledgeBase = [];
+        console.log('📚 初始化资料库存储');
+    }
+
+    // 如果资料库为空，添加一些示例数据
+    if (global.knowledgeBase.length === 0) {
+        global.knowledgeBase.push(
             {
                 id: 'demo-1',
                 content: '我们的产品支持7x24小时在线服务，随时为您提供帮助。',
@@ -40,8 +47,8 @@ export default async function handler(req, res) {
                 timestamp: new Date().toISOString(),
                 created_at: new Date().toISOString()
             }
-        ];
-        console.log('📚 初始化资料库存储，包含示例数据');
+        );
+        console.log('📚 添加示例数据到资料库');
     }
 
     console.log(`📊 当前资料库条目数: ${global.knowledgeBase.length}`);
