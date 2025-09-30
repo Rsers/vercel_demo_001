@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,7 +34,7 @@
         .header h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .header p {
@@ -45,7 +46,7 @@
             background: white;
             border-radius: 15px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
         .upload-section {
@@ -75,7 +76,9 @@
             color: #555;
         }
 
-        .input-group input, .input-group textarea, .input-group select {
+        .input-group input,
+        .input-group textarea,
+        .input-group select {
             width: 100%;
             padding: 12px;
             border: 2px solid #e9ecef;
@@ -84,7 +87,9 @@
             transition: border-color 0.3s;
         }
 
-        .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
+        .input-group input:focus,
+        .input-group textarea:focus,
+        .input-group select:focus {
             outline: none;
             border-color: #667eea;
         }
@@ -192,7 +197,7 @@
             max-height: 300px;
             border-radius: 8px;
             margin-bottom: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .loading {
@@ -214,7 +219,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .error {
@@ -284,13 +291,14 @@
             .analysis-types {
                 grid-template-columns: 1fr;
             }
-            
+
             .example-images {
                 grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -302,7 +310,7 @@
             <!-- 上传和分析区域 -->
             <div class="upload-section">
                 <h3>📸 图片分析</h3>
-                
+
                 <div class="input-group">
                     <label for="imageUrl">图片 URL</label>
                     <input type="url" id="imageUrl" placeholder="输入图片 URL，如：https://example.com/image.jpg">
@@ -344,19 +352,23 @@
                 <div style="margin-top: 20px;">
                     <h4>📷 示例图片（点击使用）</h4>
                     <div class="example-images">
-                        <div class="example-image" onclick="useExampleImage('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400')">
+                        <div class="example-image"
+                            onclick="useExampleImage('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400')">
                             <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400" alt="风景">
                             <p>风景图片</p>
                         </div>
-                        <div class="example-image" onclick="useExampleImage('https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400')">
+                        <div class="example-image"
+                            onclick="useExampleImage('https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400')">
                             <img src="https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400" alt="食物">
                             <p>食物图片</p>
                         </div>
-                        <div class="example-image" onclick="useExampleImage('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400')">
+                        <div class="example-image"
+                            onclick="useExampleImage('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400')">
                             <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400" alt="建筑">
                             <p>建筑图片</p>
                         </div>
-                        <div class="example-image" onclick="useExampleImage('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400')">
+                        <div class="example-image"
+                            onclick="useExampleImage('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400')">
                             <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400" alt="动物">
                             <p>动物图片</p>
                         </div>
@@ -404,11 +416,11 @@
 
         // 选择分析类型
         document.querySelectorAll('.analysis-type').forEach(type => {
-            type.addEventListener('click', function() {
+            type.addEventListener('click', function () {
                 document.querySelectorAll('.analysis-type').forEach(t => t.classList.remove('selected'));
                 this.classList.add('selected');
                 currentAnalysisType = this.dataset.type;
-                
+
                 // 显示/隐藏问题输入框
                 const questionGroup = document.getElementById('questionGroup');
                 if (currentAnalysisType === 'qa') {
@@ -462,21 +474,15 @@
                 let requestBody = { image_url: imageUrl };
 
                 // 根据分析类型选择 API 端点
-                switch (currentAnalysisType) {
-                    case 'general':
-                    case 'description':
-                    case 'technical':
-                        apiEndpoint = '/api/image-analysis';
-                        requestBody.analysis_type = currentAnalysisType;
-                        break;
-                    case 'ocr':
-                        apiEndpoint = '/api/ocr';
-                        requestBody.language = 'auto';
-                        break;
-                    case 'qa':
-                        apiEndpoint = '/api/image-qa';
-                        requestBody.question = question;
-                        break;
+                // 统一使用综合图片分析 API
+                apiEndpoint = '/api/image-analysis';
+                requestBody.analysis_type = currentAnalysisType;
+
+                // 根据分析类型添加特定参数
+                if (currentAnalysisType === 'ocr') {
+                    requestBody.language = 'auto';
+                } else if (currentAnalysisType === 'qa') {
+                    requestBody.question = question;
                 }
 
                 const response = await fetch(apiEndpoint, {
@@ -488,7 +494,7 @@
                 });
 
                 const data = await response.json();
-                
+
                 if (response.ok) {
                     displayResult(data);
                     showMessage('图片分析完成！', 'success');
@@ -509,9 +515,9 @@
         function displayResult(data) {
             const resultsSection = document.getElementById('resultsSection');
             const resultContent = document.getElementById('resultContent');
-            
+
             let resultText = '';
-            
+
             switch (currentAnalysisType) {
                 case 'general':
                 case 'description':
@@ -525,7 +531,7 @@
                     resultText = `问题：${data.question}\n\n回答：${data.answer}`;
                     break;
             }
-            
+
             resultContent.textContent = resultText;
             resultsSection.style.display = 'block';
         }
@@ -545,14 +551,14 @@
             messageDiv.className = type;
             messageDiv.textContent = message;
             messageArea.appendChild(messageDiv);
-            
+
             setTimeout(() => {
                 messageDiv.remove();
             }, 5000);
         }
 
         // 图片 URL 输入时显示预览
-        document.getElementById('imageUrl').addEventListener('input', function() {
+        document.getElementById('imageUrl').addEventListener('input', function () {
             const url = this.value.trim();
             if (url && isValidUrl(url)) {
                 showImagePreview(url);
@@ -570,4 +576,5 @@
         }
     </script>
 </body>
+
 </html>
