@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文本分析助手 - DeepSeek AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+
+        .input-section h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .input-group textarea, .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        .input-group textarea:focus, .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .analysis-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .analysis-type {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .analysis-type:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .analysis-type.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .analysis-type h4 {
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .analysis-type p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #545b62;
+        }
+
+        .results-section {
+            margin-top: 30px;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #28a745;
+        }
+
+        .result-card h4 {
+            color: #28a745;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-content {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #667eea;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        .api-info {
+            background: #d1ecf1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .api-info h4 {
+            color: #0c5460;
+            margin-bottom: 10px;
+        }
+
+        .api-info p {
+            color: #0c5460;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .example-texts {
+            margin-top: 15px;
+        }
+
+        .example-text {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .example-text:hover {
+            border-color: #667eea;
+            transform: translateY(-1px);
+        }
+
+        .example-text h5 {
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .example-text p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .analysis-types {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 文本分析助手</h1>
+            <p>基于 DeepSeek AI 的智能文本分析系统</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 输入区域 -->
+            <div class="input-section">
+                <h3>📝 文本分析</h3>
+                
+                <div class="input-group">
+                    <label for="textInput">输入文本内容</label>
+                    <textarea id="textInput" rows="8" placeholder="请输入要分析的文本内容..."></textarea>
+                    <div class="char-count" id="charCount">0 字符</div>
+                </div>
+
+                <!-- 分析类型选择 -->
+                <div class="analysis-types">
+                    <div class="analysis-type selected" data-type="general">
+                        <h4>📊 内容分析</h4>
+                        <p>分析文本的主要内容和结构</p>
+                    </div>
+                    <div class="analysis-type" data-type="summary">
+                        <h4>📋 内容摘要</h4>
+                        <p>生成文本的简洁摘要</p>
+                    </div>
+                    <div class="analysis-type" data-type="sentiment">
+                        <h4>😊 情感分析</h4>
+                        <p>分析文本的情感倾向</p>
+                    </div>
+                    <div class="analysis-type" data-type="keywords">
+                        <h4>🔑 关键词提取</h4>
+                        <p>提取文本中的关键词</p>
+                    </div>
+                    <div class="analysis-type" data-type="translation">
+                        <h4>🌐 翻译</h4>
+                        <p>将文本翻译成中文</p>
+                    </div>
+                    <div class="analysis-type" data-type="qa">
+                        <h4>❓ 问答</h4>
+                        <p>回答关于文本的问题</p>
+                    </div>
+                    <div class="analysis-type" data-type="grammar">
+                        <h4>✏️ 语法检查</h4>
+                        <p>检查语法和表达</p>
+                    </div>
+                    <div class="analysis-type" data-type="creative">
+                        <h4>💡 创意扩展</h4>
+                        <p>基于文本进行创意扩展</p>
+                    </div>
+                </div>
+
+                <!-- 问答输入（仅在问答模式下显示） -->
+                <div class="input-group" id="questionGroup" style="display: none;">
+                    <label for="question">问题</label>
+                    <input type="text" id="question" placeholder="输入你想了解的问题，如：这段文本的主要观点是什么？">
+                </div>
+
+                <!-- 操作按钮 -->
+                <div>
+                    <button class="btn" onclick="analyzeText()" id="analyzeBtn">开始分析</button>
+                    <button class="btn btn-secondary" onclick="clearResults()">清空结果</button>
+                </div>
+
+                <!-- 示例文本 -->
+                <div class="example-texts">
+                    <h4>📄 示例文本（点击使用）</h4>
+                    <div class="example-text" onclick="useExampleText('人工智能技术正在快速发展，它正在改变我们的生活方式。从智能手机到自动驾驶汽车，AI技术无处不在。然而，我们也需要关注AI发展带来的挑战，如就业影响和隐私问题。')">
+                        <h5>AI 技术发展</h5>
+                        <p>关于人工智能技术发展的文本</p>
+                    </div>
+                    <div class="example-text" onclick="useExampleText('今天天气真好！阳光明媚，微风轻拂。我决定去公园散步，享受这美好的时光。公园里有很多人在锻炼，孩子们在玩耍，一切都显得那么和谐美好。')">
+                        <h5>美好的一天</h5>
+                        <p>描述美好一天的文本</p>
+                    </div>
+                    <div class="example-text" onclick="useExampleText('The rapid advancement of artificial intelligence has brought both opportunities and challenges to our society. While AI can improve efficiency and solve complex problems, it also raises concerns about job displacement and ethical implications.')">
+                        <h5>AI 发展（英文）</h5>
+                        <p>英文文本，可用于翻译测试</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 加载状态 -->
+            <div class="loading" id="loadingState" style="display: none;">
+                正在分析文本...
+            </div>
+
+            <!-- 结果区域 -->
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <div class="result-card">
+                    <h4>📊 分析结果</h4>
+                    <div class="result-content" id="resultContent"></div>
+                </div>
+            </div>
+
+            <!-- 消息提示区域 -->
+            <div id="messageArea"></div>
+
+            <!-- API 信息 -->
+            <div class="api-info">
+                <h4>🔧 DeepSeek 文本分析说明</h4>
+                <p><strong>支持功能:</strong></p>
+                <p>• 文本内容分析 - 深入分析文本内容和结构</p>
+                <p>• 摘要生成 - 生成简洁准确的文本摘要</p>
+                <p>• 情感分析 - 判断文本的情感倾向</p>
+                <p>• 关键词提取 - 提取文本中的关键词</p>
+                <p>• 翻译服务 - 多语言翻译</p>
+                <p>• 问答系统 - 基于文本回答问题</p>
+                <p>• 语法检查 - 检查语法和表达</p>
+                <p>• 创意写作 - 基于文本进行创意扩展</p>
+                <p><strong>技术特点:</strong> 通过 Vercel API 安全集成 DeepSeek 文本分析服务</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAnalysisType = 'general';
+
+        // 选择分析类型
+        document.querySelectorAll('.analysis-type').forEach(type => {
+            type.addEventListener('click', function() {
+                document.querySelectorAll('.analysis-type').forEach(t => t.classList.remove('selected'));
+                this.classList.add('selected');
+                currentAnalysisType = this.dataset.type;
+                
+                // 显示/隐藏问题输入框
+                const questionGroup = document.getElementById('questionGroup');
+                if (currentAnalysisType === 'qa') {
+                    questionGroup.style.display = 'block';
+                } else {
+                    questionGroup.style.display = 'none';
+                }
+            });
+        });
+
+        // 字符计数
+        document.getElementById('textInput').addEventListener('input', function() {
+            const count = this.value.length;
+            document.getElementById('charCount').textContent = `${count} 字符`;
+        });
+
+        // 使用示例文本
+        function useExampleText(text) {
+            document.getElementById('textInput').value = text;
+            document.getElementById('charCount').textContent = `${text.length} 字符`;
+        }
+
+        // 分析文本
+        async function analyzeText() {
+            const text = document.getElementById('textInput').value.trim();
+            const question = document.getElementById('question').value.trim();
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const loadingState = document.getElementById('loadingState');
+            const resultsSection = document.getElementById('resultsSection');
+
+            if (!text) {
+                showMessage('请输入文本内容！', 'error');
+                return;
+            }
+
+            if (currentAnalysisType === 'qa' && !question) {
+                showMessage('请输入问题！', 'error');
+                return;
+            }
+
+            // 显示加载状态
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = '分析中...';
+            loadingState.style.display = 'block';
+            resultsSection.style.display = 'none';
+
+            try {
+                const requestBody = { 
+                    text: text,
+                    analysis_type: currentAnalysisType
+                };
+
+                if (currentAnalysisType === 'qa') {
+                    requestBody.question = question;
+                }
+
+                const response = await fetch('/api/text-analysis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayResult(data);
+                    showMessage('文本分析完成！', 'success');
+                } else {
+                    showMessage(data.error || '分析失败', 'error');
+                }
+            } catch (error) {
+                showMessage(`网络错误：${error.message}`, 'error');
+            } finally {
+                // 隐藏加载状态
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = '开始分析';
+                loadingState.style.display = 'none';
+            }
+        }
+
+        // 显示结果
+        function displayResult(data) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultContent = document.getElementById('resultContent');
+            
+            let resultText = data.result;
+            
+            if (currentAnalysisType === 'qa') {
+                resultText = `问题：${data.question}\n\n回答：${data.result}`;
+            }
+            
+            resultContent.textContent = resultText;
+            resultsSection.style.display = 'block';
+        }
+
+        // 清空结果
+        function clearResults() {
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('textInput').value = '';
+            document.getElementById('question').value = '';
+            document.getElementById('charCount').textContent = '0 字符';
+        }
+
+        // 显示消息
+        function showMessage(message, type = 'success') {
+            const messageArea = document.getElementById('messageArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type;
+            messageDiv.textContent = message;
+            messageArea.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

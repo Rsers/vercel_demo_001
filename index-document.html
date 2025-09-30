@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文档分析助手 - DeepSeek AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .upload-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+
+        .upload-section h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .input-group input, .input-group textarea, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .analysis-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .analysis-type {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .analysis-type:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .analysis-type.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .analysis-type h4 {
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .analysis-type p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #545b62;
+        }
+
+        .results-section {
+            margin-top: 30px;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #28a745;
+        }
+
+        .result-card h4 {
+            color: #28a745;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-content {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #667eea;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        .api-info {
+            background: #d1ecf1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .api-info h4 {
+            color: #0c5460;
+            margin-bottom: 10px;
+        }
+
+        .api-info p {
+            color: #0c5460;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .example-files {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .example-file {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .example-file:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .example-file p {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .file-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .notice {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .notice h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .notice p {
+            color: #856404;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .analysis-types {
+                grid-template-columns: 1fr;
+            }
+            
+            .example-files {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📄 文档分析助手</h1>
+            <p>基于 DeepSeek AI 的智能文档分析系统</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 重要说明 -->
+            <div class="notice">
+                <h4>📢 重要说明</h4>
+                <p>• DeepSeek API 支持文件上传和分析功能</p>
+                <p>• 支持格式：图片、PDF、Word、Excel、PPT、TXT 等</p>
+                <p>• 可以从图片中提取文字内容（OCR 功能）</p>
+                <p>• 请提供可公开访问的文件 URL</p>
+            </div>
+
+            <!-- 上传和分析区域 -->
+            <div class="upload-section">
+                <h3>📄 文档分析</h3>
+                
+                <div class="input-group">
+                    <label for="fileUrl">文件 URL</label>
+                    <input type="url" id="fileUrl" placeholder="输入文件 URL，如：https://example.com/document.pdf">
+                </div>
+
+                <!-- 分析类型选择 -->
+                <div class="analysis-types">
+                    <div class="analysis-type selected" data-type="text_extraction">
+                        <h4>📝 文字提取</h4>
+                        <p>提取文件中的所有文字内容</p>
+                    </div>
+                    <div class="analysis-type" data-type="ocr">
+                        <h4>🔍 OCR 识别</h4>
+                        <p>从图片中识别文字内容</p>
+                    </div>
+                    <div class="analysis-type" data-type="content_analysis">
+                        <h4>📊 内容分析</h4>
+                        <p>分析文件的主要内容和结构</p>
+                    </div>
+                    <div class="analysis-type" data-type="summary">
+                        <h4>📋 内容摘要</h4>
+                        <p>生成文件的简洁摘要</p>
+                    </div>
+                    <div class="analysis-type" data-type="qa">
+                        <h4>❓ 文档问答</h4>
+                        <p>回答关于文档的问题</p>
+                    </div>
+                    <div class="analysis-type" data-type="translation">
+                        <h4>🌐 翻译</h4>
+                        <p>将文档内容翻译成中文</p>
+                    </div>
+                </div>
+
+                <!-- 问答输入（仅在问答模式下显示） -->
+                <div class="input-group" id="questionGroup" style="display: none;">
+                    <label for="question">问题</label>
+                    <textarea id="question" rows="3" placeholder="输入你想了解的问题，如：这个文档的主要内容是什么？"></textarea>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div>
+                    <button class="btn" onclick="analyzeDocument()" id="analyzeBtn">开始分析</button>
+                    <button class="btn btn-secondary" onclick="clearResults()">清空结果</button>
+                </div>
+
+                <!-- 示例文件 -->
+                <div style="margin-top: 20px;">
+                    <h4>📁 示例文件（点击使用）</h4>
+                    <div class="example-files">
+                        <div class="example-file" onclick="useExampleFile('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf')">
+                            <div class="file-icon">📄</div>
+                            <p>PDF 文档</p>
+                        </div>
+                        <div class="example-file" onclick="useExampleFile('https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400')">
+                            <div class="file-icon">🖼️</div>
+                            <p>图片文件</p>
+                        </div>
+                        <div class="example-file" onclick="useExampleFile('https://raw.githubusercontent.com/microsoft/vscode/main/README.md')">
+                            <div class="file-icon">📝</div>
+                            <p>文本文件</p>
+                        </div>
+                        <div class="example-file" onclick="useExampleFile('https://www.learningcontainer.com/wp-content/uploads/2019/09/sample-pdf-file.pdf')">
+                            <div class="file-icon">📋</div>
+                            <p>示例 PDF</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 加载状态 -->
+            <div class="loading" id="loadingState" style="display: none;">
+                正在分析文档...
+            </div>
+
+            <!-- 结果区域 -->
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <div class="result-card">
+                    <h4>📊 分析结果</h4>
+                    <div class="result-content" id="resultContent"></div>
+                </div>
+            </div>
+
+            <!-- 消息提示区域 -->
+            <div id="messageArea"></div>
+
+            <!-- API 信息 -->
+            <div class="api-info">
+                <h4>🔧 DeepSeek 文档分析说明</h4>
+                <p><strong>支持功能:</strong></p>
+                <p>• 文件上传和分析 - 支持多种文件格式</p>
+                <p>• 文字提取和识别 - 从文件中提取文字内容</p>
+                <p>• OCR 文字识别 - 从图片中识别文字</p>
+                <p>• 内容分析和摘要 - 分析文档结构和内容</p>
+                <p>• 文档问答 - 回答关于文档的问题</p>
+                <p><strong>技术特点:</strong> 通过 Vercel API 安全集成 DeepSeek 文档分析服务</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAnalysisType = 'text_extraction';
+
+        // 选择分析类型
+        document.querySelectorAll('.analysis-type').forEach(type => {
+            type.addEventListener('click', function() {
+                document.querySelectorAll('.analysis-type').forEach(t => t.classList.remove('selected'));
+                this.classList.add('selected');
+                currentAnalysisType = this.dataset.type;
+                
+                // 显示/隐藏问题输入框
+                const questionGroup = document.getElementById('questionGroup');
+                if (currentAnalysisType === 'qa') {
+                    questionGroup.style.display = 'block';
+                } else {
+                    questionGroup.style.display = 'none';
+                }
+            });
+        });
+
+        // 使用示例文件
+        function useExampleFile(url) {
+            document.getElementById('fileUrl').value = url;
+        }
+
+        // 分析文档
+        async function analyzeDocument() {
+            const fileUrl = document.getElementById('fileUrl').value.trim();
+            const question = document.getElementById('question').value.trim();
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const loadingState = document.getElementById('loadingState');
+            const resultsSection = document.getElementById('resultsSection');
+
+            if (!fileUrl) {
+                showMessage('请输入文件 URL！', 'error');
+                return;
+            }
+
+            if (currentAnalysisType === 'qa' && !question) {
+                showMessage('请输入问题！', 'error');
+                return;
+            }
+
+            // 显示加载状态
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = '分析中...';
+            loadingState.style.display = 'block';
+            resultsSection.style.display = 'none';
+
+            try {
+                const requestBody = { 
+                    file_url: fileUrl,
+                    analysis_type: currentAnalysisType
+                };
+
+                if (currentAnalysisType === 'qa') {
+                    requestBody.question = question;
+                }
+
+                const response = await fetch('/api/document-analysis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayResult(data);
+                    showMessage('文档分析完成！', 'success');
+                } else {
+                    showMessage(data.error || '分析失败', 'error');
+                }
+            } catch (error) {
+                showMessage(`网络错误：${error.message}`, 'error');
+            } finally {
+                // 隐藏加载状态
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = '开始分析';
+                loadingState.style.display = 'none';
+            }
+        }
+
+        // 显示结果
+        function displayResult(data) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultContent = document.getElementById('resultContent');
+            
+            let resultText = data.result;
+            
+            if (currentAnalysisType === 'qa') {
+                resultText = `问题：${data.question}\n\n回答：${data.result}`;
+            }
+            
+            resultContent.textContent = resultText;
+            resultsSection.style.display = 'block';
+        }
+
+        // 清空结果
+        function clearResults() {
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('fileUrl').value = '';
+            document.getElementById('question').value = '';
+        }
+
+        // 显示消息
+        function showMessage(message, type = 'success') {
+            const messageArea = document.getElementById('messageArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type;
+            messageDiv.textContent = message;
+            messageArea.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+
+        // 验证 URL
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+    </script>
+</body>
+</html>
