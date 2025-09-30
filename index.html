@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,7 +34,7 @@
         .header h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .header p {
@@ -45,7 +46,7 @@
             background: white;
             border-radius: 15px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
         .search-section {
@@ -82,7 +83,8 @@
             color: #555;
         }
 
-        .form-group input, .form-group select {
+        .form-group input,
+        .form-group select {
             width: 100%;
             padding: 12px;
             border: 2px solid #e9ecef;
@@ -91,7 +93,8 @@
             transition: border-color 0.3s;
         }
 
-        .form-group input:focus, .form-group select:focus {
+        .form-group input:focus,
+        .form-group select:focus {
             outline: none;
             border-color: #74b9ff;
         }
@@ -160,7 +163,7 @@
         }
 
         .detail-item {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             padding: 15px;
             border-radius: 8px;
             text-align: center;
@@ -202,7 +205,7 @@
             padding: 20px;
             border-radius: 10px;
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .forecast-date {
@@ -247,7 +250,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .error {
@@ -309,17 +314,18 @@
             .weather-display {
                 grid-template-columns: 1fr;
             }
-            
+
             .search-form {
                 grid-template-columns: 1fr;
             }
-            
+
             .forecast-grid {
                 grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -428,7 +434,7 @@
             messageDiv.className = type;
             messageDiv.textContent = message;
             messageArea.appendChild(messageDiv);
-            
+
             setTimeout(() => {
                 messageDiv.remove();
             }, 5000);
@@ -439,7 +445,7 @@
             const city = document.getElementById('cityInput').value.trim();
             const country = document.getElementById('countrySelect').value;
             const searchBtn = document.getElementById('searchBtn');
-            
+
             if (!city) {
                 showMessage('请输入城市名称！', 'error');
                 return;
@@ -459,14 +465,14 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ 
+                    body: JSON.stringify({
                         city: city,
-                        country: country 
+                        country: country
                     })
                 });
 
                 const data = await response.json();
-                
+
                 if (response.ok) {
                     currentWeatherData = data;
                     displayWeather(data);
@@ -517,7 +523,7 @@
             forecastData.list.slice(0, 5).forEach((day, index) => {
                 const date = new Date(day.dt * 1000);
                 const dayName = date.toLocaleDateString('zh-CN', { weekday: 'short' });
-                
+
                 const forecastItem = document.createElement('div');
                 forecastItem.className = 'forecast-item';
                 forecastItem.innerHTML = `
@@ -547,16 +553,17 @@
         }
 
         // 回车键搜索
-        document.getElementById('cityInput').addEventListener('keypress', function(e) {
+        document.getElementById('cityInput').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 getWeather();
             }
         });
 
         // 页面加载完成后自动查询北京天气
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             getWeather();
         });
     </script>
 </body>
+
 </html>
