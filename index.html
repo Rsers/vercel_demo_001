@@ -1,242 +1,398 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vercel API Demo</title>
+    <title>我的任务管理 - Vercel API 演示</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
         }
 
         .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            color: #333;
-            text-align: center;
-        }
-
-        .api-section {
-            margin: 30px 0;
+            max-width: 800px;
+            margin: 0 auto;
             padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .user-section {
             background: #f8f9fa;
-            border-radius: 8px;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
             border-left: 4px solid #007bff;
         }
 
-        .api-section h3 {
-            margin-top: 0;
+        .user-section h3 {
             color: #007bff;
+            margin-bottom: 15px;
         }
 
-        .code {
-            background: #f1f1f1;
-            padding: 15px;
-            border-radius: 5px;
-            font-family: monospace;
-            margin: 10px 0;
-            overflow-x: auto;
-        }
-
-        .test-button {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 5px;
-        }
-
-        .test-button:hover {
-            background: #0056b3;
-        }
-
-        .response {
-            background: #e9ecef;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 10px 0;
-            white-space: pre-wrap;
-            font-family: monospace;
-            max-height: 300px;
-            overflow-y: auto;
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
         }
 
         .form-group {
-            margin: 15px 0;
+            margin-bottom: 15px;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 5px;
-            font-weight: bold;
+            font-weight: 600;
+            color: #555;
         }
 
-        .form-group input,
-        .form-group textarea {
+        .form-group input, .form-group textarea {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
         }
 
-        .method-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-right: 10px;
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #007bff;
         }
 
-        .get {
-            background: #28a745;
-            color: white;
-        }
-
-        .post {
+        .btn {
             background: #007bff;
             color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
         }
 
-        .put {
-            background: #ffc107;
-            color: black;
+        .btn:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
         }
 
-        .delete {
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+
+        .btn-danger {
             background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        .tasks-section {
+            margin-top: 30px;
+        }
+
+        .tasks-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .task-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .task-list {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .task-item {
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: background-color 0.3s;
+        }
+
+        .task-item:hover {
+            background: #f8f9fa;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .task-description {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #c3e6cb;
+        }
+
+        .welcome-message {
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #007bff;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .task-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .task-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
         }
     </style>
 </head>
-
 <body>
     <div class="container">
-        <h1>🚀 Vercel API 演示</h1>
-        <p>这个页面展示了如何使用 Vercel 的 Serverless Functions 创建 API 接口。</p>
-
-        <!-- Hello API -->
-        <div class="api-section">
-            <h3><span class="method-badge get">GET</span>/api/hello</h3>
-            <p>简单的问候 API，支持查询参数。</p>
-            <div class="code">
-                // 请求示例
-                fetch('/api/hello?name=张三')
-                .then(response => response.json())
-                .then(data => console.log(data));
-            </div>
-            <div class="form-group">
-                <label>姓名:</label>
-                <input type="text" id="helloName" placeholder="输入你的姓名" value="张三">
-            </div>
-            <button class="test-button" onclick="testHelloAPI()">测试 Hello API</button>
-            <div id="helloResponse" class="response" style="display: none;"></div>
+        <div class="header">
+            <h1>📋 我的任务管理</h1>
+            <p>基于 Vercel API 的智能任务管理系统</p>
         </div>
 
-        <!-- Users API -->
-        <div class="api-section">
-            <h3><span class="method-badge post">POST</span>/api/users</h3>
-            <p>创建用户数据的 API。</p>
-            <div class="code">
-                // 请求示例
-                fetch('/api/users', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                name: '张三',
-                email: 'zhangsan@example.com',
-                message: '你好世界'
-                })
-                })
-                .then(response => response.json())
-                .then(data => console.log(data));
+        <div class="main-content">
+            <!-- 欢迎区域 -->
+            <div class="welcome-message" id="welcomeMessage">
+                <h2>👋 欢迎使用任务管理系统！</h2>
+                <p>请先注册用户信息，然后开始管理你的任务</p>
             </div>
-            <div class="form-group">
-                <label>姓名:</label>
-                <input type="text" id="userName" placeholder="输入姓名" value="张三">
-            </div>
-            <div class="form-group">
-                <label>邮箱:</label>
-                <input type="email" id="userEmail" placeholder="输入邮箱" value="zhangsan@example.com">
-            </div>
-            <div class="form-group">
-                <label>消息:</label>
-                <textarea id="userMessage" placeholder="输入消息">你好世界</textarea>
-            </div>
-            <button class="test-button" onclick="testUsersAPI()">测试 Users API</button>
-            <div id="usersResponse" class="response" style="display: none;"></div>
-        </div>
 
-        <!-- Tasks API -->
-        <div class="api-section">
-            <h3><span class="method-badge get">GET</span><span class="method-badge post">POST</span><span
-                    class="method-badge put">PUT</span><span class="method-badge delete">DELETE</span>/api/tasks</h3>
-            <p>任务管理 API，支持所有 HTTP 方法。</p>
-            <div class="code">
-                // GET - 获取所有任务
-                fetch('/api/tasks')
-
-                // POST - 创建任务
-                fetch('/api/tasks', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title: '新任务', description: '任务描述' })
-                })
-
-                // PUT - 更新任务
-                fetch('/api/tasks?id=1', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title: '更新的任务', completed: true })
-                })
-
-                // DELETE - 删除任务
-                fetch('/api/tasks?id=1', { method: 'DELETE' })
+            <!-- 用户注册区域 -->
+            <div class="user-section" id="userSection">
+                <h3>👤 用户信息</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="userName">姓名</label>
+                        <input type="text" id="userName" placeholder="请输入你的姓名" value="张三">
+                    </div>
+                    <div class="form-group">
+                        <label for="userEmail">邮箱</label>
+                        <input type="email" id="userEmail" placeholder="请输入邮箱地址" value="zhangsan@example.com">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="userMessage">个人简介</label>
+                    <textarea id="userMessage" rows="3" placeholder="介绍一下自己...">我是一名开发者，喜欢使用现代化的工具来提高工作效率。</textarea>
+                </div>
+                <button class="btn btn-success" onclick="registerUser()">注册用户</button>
+                <button class="btn btn-secondary" onclick="getGreeting()">获取问候</button>
             </div>
-            <button class="test-button" onclick="testTasksAPI('GET')">获取所有任务</button>
-            <button class="test-button" onclick="testTasksAPI('POST')">创建任务</button>
-            <button class="test-button" onclick="testTasksAPI('PUT')">更新任务</button>
-            <button class="test-button" onclick="testTasksAPI('DELETE')">删除任务</button>
-            <div id="tasksResponse" class="response" style="display: none;"></div>
+
+            <!-- 统计信息 -->
+            <div class="stats" id="statsSection" style="display: none;">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalTasks">0</div>
+                    <div class="stat-label">总任务</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="completedTasks">0</div>
+                    <div class="stat-label">已完成</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="pendingTasks">0</div>
+                    <div class="stat-label">待完成</div>
+                </div>
+            </div>
+
+            <!-- 任务管理区域 -->
+            <div class="tasks-section" id="tasksSection" style="display: none;">
+                <h3>📝 任务管理</h3>
+                
+                <!-- 添加任务表单 -->
+                <div class="task-form">
+                    <div class="form-group">
+                        <label for="taskTitle">任务标题</label>
+                        <input type="text" id="taskTitle" placeholder="输入任务标题...">
+                    </div>
+                    <div class="form-group">
+                        <label for="taskDescription">任务描述</label>
+                        <textarea id="taskDescription" rows="2" placeholder="详细描述任务内容..."></textarea>
+                    </div>
+                    <button class="btn" onclick="addTask()">添加任务</button>
+                    <button class="btn btn-secondary" onclick="loadTasks()">刷新任务</button>
+                </div>
+
+                <!-- 任务列表 -->
+                <div class="task-list" id="taskList">
+                    <div class="loading">正在加载任务...</div>
+                </div>
+            </div>
+
+            <!-- 消息提示区域 -->
+            <div id="messageArea"></div>
         </div>
     </div>
 
     <script>
-        // 测试 Hello API
-        async function testHelloAPI() {
-            const name = document.getElementById('helloName').value;
-            const responseDiv = document.getElementById('helloResponse');
+        let currentUser = null;
+        let tasks = [];
 
-            try {
-                const response = await fetch(`/api/hello?name=${encodeURIComponent(name)}`);
-                const data = await response.json();
-                responseDiv.textContent = JSON.stringify(data, null, 2);
-                responseDiv.style.display = 'block';
-            } catch (error) {
-                responseDiv.textContent = `错误: ${error.message}`;
-                responseDiv.style.display = 'block';
-            }
+        // 显示消息
+        function showMessage(message, type = 'success') {
+            const messageArea = document.getElementById('messageArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type;
+            messageDiv.textContent = message;
+            messageArea.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 3000);
         }
 
-        // 测试 Users API
-        async function testUsersAPI() {
+        // 注册用户
+        async function registerUser() {
             const name = document.getElementById('userName').value;
             const email = document.getElementById('userEmail').value;
             const message = document.getElementById('userMessage').value;
-            const responseDiv = document.getElementById('usersResponse');
+
+            if (!name || !email) {
+                showMessage('请填写姓名和邮箱！', 'error');
+                return;
+            }
 
             try {
                 const response = await fetch('/api/users', {
@@ -246,63 +402,215 @@
                     },
                     body: JSON.stringify({ name, email, message })
                 });
+
                 const data = await response.json();
-                responseDiv.textContent = JSON.stringify(data, null, 2);
-                responseDiv.style.display = 'block';
+                
+                if (response.ok) {
+                    currentUser = data.data;
+                    showMessage(`欢迎 ${name}！用户注册成功`, 'success');
+                    
+                    // 更新欢迎消息
+                    document.getElementById('welcomeMessage').innerHTML = `
+                        <h2>👋 欢迎回来，${name}！</h2>
+                        <p>你的邮箱：${email} | 用户ID：${currentUser.id}</p>
+                    `;
+                    
+                    // 显示任务管理区域
+                    document.getElementById('tasksSection').style.display = 'block';
+                    document.getElementById('statsSection').style.display = 'grid';
+                    
+                    // 加载任务
+                    loadTasks();
+                } else {
+                    showMessage(data.error || '注册失败', 'error');
+                }
             } catch (error) {
-                responseDiv.textContent = `错误: ${error.message}`;
-                responseDiv.style.display = 'block';
+                showMessage(`注册失败：${error.message}`, 'error');
             }
         }
 
-        // 测试 Tasks API
-        async function testTasksAPI(method) {
-            const responseDiv = document.getElementById('tasksResponse');
+        // 获取问候
+        async function getGreeting() {
+            const name = document.getElementById('userName').value || '世界';
+            
+            try {
+                const response = await fetch(`/api/hello?name=${encodeURIComponent(name)}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showMessage(data.message, 'success');
+                } else {
+                    showMessage('获取问候失败', 'error');
+                }
+            } catch (error) {
+                showMessage(`获取问候失败：${error.message}`, 'error');
+            }
+        }
+
+        // 加载任务
+        async function loadTasks() {
+            try {
+                const response = await fetch('/api/tasks');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    tasks = data.tasks || [];
+                    renderTasks();
+                    updateStats();
+                } else {
+                    showMessage('加载任务失败', 'error');
+                }
+            } catch (error) {
+                showMessage(`加载任务失败：${error.message}`, 'error');
+            }
+        }
+
+        // 添加任务
+        async function addTask() {
+            const title = document.getElementById('taskTitle').value;
+            const description = document.getElementById('taskDescription').value;
+
+            if (!title.trim()) {
+                showMessage('请输入任务标题！', 'error');
+                return;
+            }
 
             try {
-                let response;
-                const options = {
+                const response = await fetch('/api/tasks', {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                    }
-                };
-
-                switch (method) {
-                    case 'GET':
-                        response = await fetch('/api/tasks');
-                        break;
-                    case 'POST':
-                        options.method = 'POST';
-                        options.body = JSON.stringify({
-                            title: '新任务',
-                            description: '这是一个测试任务'
-                        });
-                        response = await fetch('/api/tasks', options);
-                        break;
-                    case 'PUT':
-                        options.method = 'PUT';
-                        options.body = JSON.stringify({
-                            title: '更新的任务',
-                            description: '任务已更新',
-                            completed: true
-                        });
-                        response = await fetch('/api/tasks?id=1', options);
-                        break;
-                    case 'DELETE':
-                        options.method = 'DELETE';
-                        response = await fetch('/api/tasks?id=1', options);
-                        break;
-                }
+                    },
+                    body: JSON.stringify({ title, description })
+                });
 
                 const data = await response.json();
-                responseDiv.textContent = JSON.stringify(data, null, 2);
-                responseDiv.style.display = 'block';
+                
+                if (response.ok) {
+                    showMessage('任务添加成功！', 'success');
+                    document.getElementById('taskTitle').value = '';
+                    document.getElementById('taskDescription').value = '';
+                    loadTasks();
+                } else {
+                    showMessage(data.error || '添加任务失败', 'error');
+                }
             } catch (error) {
-                responseDiv.textContent = `错误: ${error.message}`;
-                responseDiv.style.display = 'block';
+                showMessage(`添加任务失败：${error.message}`, 'error');
+            }
+        }
+
+        // 更新任务状态
+        async function updateTask(taskId, completed) {
+            try {
+                const response = await fetch(`/api/tasks?id=${taskId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ completed })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showMessage('任务状态已更新！', 'success');
+                    loadTasks();
+                } else {
+                    showMessage(data.error || '更新失败', 'error');
+                }
+            } catch (error) {
+                showMessage(`更新失败：${error.message}`, 'error');
+            }
+        }
+
+        // 删除任务
+        async function deleteTask(taskId) {
+            if (!confirm('确定要删除这个任务吗？')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/tasks?id=${taskId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showMessage('任务已删除！', 'success');
+                    loadTasks();
+                } else {
+                    showMessage(data.error || '删除失败', 'error');
+                }
+            } catch (error) {
+                showMessage(`删除失败：${error.message}`, 'error');
+            }
+        }
+
+        // 渲染任务列表
+        function renderTasks() {
+            const taskList = document.getElementById('taskList');
+            
+            if (tasks.length === 0) {
+                taskList.innerHTML = '<div class="loading">暂无任务，点击"添加任务"开始创建吧！</div>';
+                return;
+            }
+
+            taskList.innerHTML = tasks.map(task => `
+                <div class="task-item">
+                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} 
+                           onchange="updateTask(${task.id}, this.checked)">
+                    <div class="task-content">
+                        <div class="task-title" style="text-decoration: ${task.completed ? 'line-through' : 'none'}; opacity: ${task.completed ? '0.6' : '1'}">
+                            ${task.title}
+                        </div>
+                        <div class="task-description">${task.description || '无描述'}</div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="btn btn-sm btn-danger" onclick="deleteTask(${task.id})">删除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 更新统计信息
+        function updateStats() {
+            const totalTasks = tasks.length;
+            const completedTasks = tasks.filter(task => task.completed).length;
+            const pendingTasks = totalTasks - completedTasks;
+
+            document.getElementById('totalTasks').textContent = totalTasks;
+            document.getElementById('completedTasks').textContent = completedTasks;
+            document.getElementById('pendingTasks').textContent = pendingTasks;
+        }
+
+        // 页面加载完成后自动加载任务（如果有用户信息）
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查是否有保存的用户信息
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.getElementById('userName').value = currentUser.name;
+                document.getElementById('userEmail').value = currentUser.email;
+                document.getElementById('userMessage').value = currentUser.message;
+                
+                document.getElementById('welcomeMessage').innerHTML = `
+                    <h2>👋 欢迎回来，${currentUser.name}！</h2>
+                    <p>你的邮箱：${currentUser.email} | 用户ID：${currentUser.id}</p>
+                `;
+                
+                document.getElementById('tasksSection').style.display = 'block';
+                document.getElementById('statsSection').style.display = 'grid';
+                loadTasks();
+            }
+        });
+
+        // 保存用户信息到本地存储
+        function saveUserToLocal() {
+            if (currentUser) {
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
             }
         }
     </script>
 </body>
-
 </html>
