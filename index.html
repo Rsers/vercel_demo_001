@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智能天气助手 - Vercel API 演示</title>
+    <title>AI 智能助手 - Vercel API 演示</title>
     <style>
         * {
             margin: 0;
@@ -42,64 +42,63 @@
             opacity: 0.9;
         }
 
-        .main-content {
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .api-card {
             background: white;
             border-radius: 15px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .search-section {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
             border-left: 4px solid #74b9ff;
         }
 
-        .search-section h3 {
+        .api-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .api-card h3 {
             color: #74b9ff;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 10px;
+            font-size: 1.3rem;
         }
 
-        .search-form {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 15px;
-            align-items: end;
+        .api-card p {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
         }
 
-        .form-group {
-            margin-bottom: 15px;
+        .api-features {
+            list-style: none;
+            margin-bottom: 20px;
         }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
+        .api-features li {
             color: #555;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
         }
 
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s;
+        .api-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #74b9ff;
+            font-weight: bold;
         }
 
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #74b9ff;
-        }
-
-        .btn {
+        .api-btn {
             background: #74b9ff;
             color: white;
             border: none;
@@ -109,186 +108,30 @@
             font-size: 14px;
             font-weight: 600;
             transition: all 0.3s;
-            height: fit-content;
+            text-decoration: none;
+            display: inline-block;
+            width: 100%;
+            text-align: center;
         }
 
-        .btn:hover {
+        .api-btn:hover {
             background: #0984e3;
             transform: translateY(-1px);
         }
 
-        .btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
+        .api-btn.chat {
+            background: #6c5ce7;
         }
 
-        .weather-display {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
+        .api-btn.chat:hover {
+            background: #5f3dc4;
         }
 
-        .current-weather {
-            background: linear-gradient(135deg, #74b9ff, #0984e3);
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-        }
-
-        .weather-icon {
-            font-size: 4rem;
-            margin-bottom: 15px;
-        }
-
-        .temperature {
-            font-size: 3rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .weather-description {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            opacity: 0.9;
-        }
-
-        .weather-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .detail-item {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .detail-label {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            margin-bottom: 5px;
-        }
-
-        .detail-value {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        .forecast-section {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 12px;
-        }
-
-        .forecast-section h3 {
-            color: #74b9ff;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .forecast-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-        }
-
-        .forecast-item {
+        .main-content {
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .forecast-date {
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: #555;
-        }
-
-        .forecast-icon {
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-
-        .forecast-temp {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #74b9ff;
-        }
-
-        .forecast-desc {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 5px;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-
-        .loading::after {
-            content: '';
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #74b9ff;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 1s linear infinite;
-            margin-left: 10px;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            border: 1px solid #f5c6cb;
-        }
-
-        .success {
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            border: 1px solid #c3e6cb;
-        }
-
-        .location-info {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #2196f3;
-        }
-
-        .location-info h4 {
-            color: #1976d2;
-            margin-bottom: 5px;
-        }
-
-        .location-info p {
-            color: #555;
-            font-size: 0.9rem;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
         .api-info {
@@ -329,239 +172,71 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🌤️ 智能天气助手</h1>
-            <p>基于 Vercel API 的实时天气查询系统</p>
+            <h1>🤖 AI 智能助手</h1>
+            <p>基于 Vercel API 的 AI 服务演示平台</p>
         </div>
 
         <div class="main-content">
-            <!-- 搜索区域 -->
-            <div class="search-section">
-                <h3>🔍 天气查询</h3>
-                <div class="search-form">
-                    <div class="form-group">
-                        <label for="cityInput">城市名称</label>
-                        <input type="text" id="cityInput" placeholder="输入城市名称，如：北京、上海、深圳..." value="北京">
-                    </div>
-                    <button class="btn" onclick="getWeather()" id="searchBtn">查询天气</button>
+            <!-- API 服务网格 -->
+            <div class="api-grid">
+                <!-- 文本分析 API -->
+                <div class="api-card">
+                    <h3>📝 文本分析服务</h3>
+                    <p>强大的文本处理和分析功能，支持多种文本分析任务。</p>
+                    <ul class="api-features">
+                        <li>文本内容分析</li>
+                        <li>摘要生成</li>
+                        <li>情感分析</li>
+                        <li>关键词提取</li>
+                        <li>翻译服务</li>
+                        <li>语法检查</li>
+                        <li>创意写作</li>
+                    </ul>
+                    <a href="index-text.html" class="api-btn">体验文本分析</a>
                 </div>
-                <div class="form-group">
-                    <label for="countrySelect">国家/地区</label>
-                    <select id="countrySelect">
-                        <option value="CN">中国</option>
-                        <option value="US">美国</option>
-                        <option value="JP">日本</option>
-                        <option value="KR">韩国</option>
-                        <option value="GB">英国</option>
-                        <option value="FR">法国</option>
-                        <option value="DE">德国</option>
-                        <option value="AU">澳大利亚</option>
-                    </select>
-                </div>
-            </div>
 
-            <!-- 位置信息 -->
-            <div class="location-info" id="locationInfo" style="display: none;">
-                <h4>📍 当前位置信息</h4>
-                <p id="locationText"></p>
-            </div>
-
-            <!-- 天气显示区域 -->
-            <div id="weatherDisplay" style="display: none;">
-                <div class="weather-display">
-                    <!-- 当前天气 -->
-                    <div class="current-weather">
-                        <div class="weather-icon" id="currentIcon">☀️</div>
-                        <div class="temperature" id="currentTemp">25°C</div>
-                        <div class="weather-description" id="currentDesc">晴朗</div>
-                        <div class="weather-details">
-                            <div class="detail-item">
-                                <div class="detail-label">湿度</div>
-                                <div class="detail-value" id="humidity">65%</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">风速</div>
-                                <div class="detail-value" id="windSpeed">5 m/s</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">气压</div>
-                                <div class="detail-value" id="pressure">1013 hPa</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">能见度</div>
-                                <div class="detail-value" id="visibility">10 km</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 预报信息 -->
-                    <div class="forecast-section">
-                        <h3>📅 未来5天预报</h3>
-                        <div class="forecast-grid" id="forecastGrid">
-                            <!-- 预报项目将通过 JavaScript 动态生成 -->
-                        </div>
-                    </div>
+                <!-- 客服助手 API -->
+                <div class="api-card">
+                    <h3>💬 智能客服助手</h3>
+                    <p>基于 DeepSeek AI 的智能对话系统，提供专业的客服支持。</p>
+                    <ul class="api-features">
+                        <li>智能对话交流</li>
+                        <li>问题解答</li>
+                        <li>多轮对话</li>
+                        <li>上下文理解</li>
+                        <li>专业客服支持</li>
+                        <li>实时响应</li>
+                    </ul>
+                    <a href="index-ai.html" class="api-btn chat">体验智能客服</a>
                 </div>
             </div>
-
-            <!-- 加载状态 -->
-            <div class="loading" id="loadingState" style="display: none;">
-                正在获取天气数据...
-            </div>
-
-            <!-- 消息提示区域 -->
-            <div id="messageArea"></div>
 
             <!-- API 信息说明 -->
             <div class="api-info">
                 <h4>🔧 API 技术说明</h4>
-                <p><strong>为什么必须使用 API？</strong></p>
-                <p>• 天气数据需要从专业气象服务获取，无法在前端生成</p>
-                <p>• 实时数据更新需要服务器端处理</p>
-                <p>• 地理位置解析需要外部服务支持</p>
-                <p>• 数据缓存和优化需要服务端实现</p>
-                <p><strong>使用的 API：</strong> OpenWeatherMap API + Vercel Serverless Functions</p>
+                <p><strong>为什么需要服务端 API？</strong></p>
+                <p>• AI 服务需要服务器端调用，保护 API 密钥安全</p>
+                <p>• 复杂的数据处理需要服务端计算能力</p>
+                <p>• 统一的错误处理和响应格式</p>
+                <p>• 服务端缓存和性能优化</p>
+                <p><strong>使用的技术：</strong> DeepSeek API + Vercel Serverless Functions</p>
             </div>
         </div>
     </div>
 
     <script>
-        let currentWeatherData = null;
-
-        // 显示消息
-        function showMessage(message, type = 'success') {
-            const messageArea = document.getElementById('messageArea');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = type;
-            messageDiv.textContent = message;
-            messageArea.appendChild(messageDiv);
-
-            setTimeout(() => {
-                messageDiv.remove();
-            }, 5000);
-        }
-
-        // 获取天气数据
-        async function getWeather() {
-            const city = document.getElementById('cityInput').value.trim();
-            const country = document.getElementById('countrySelect').value;
-            const searchBtn = document.getElementById('searchBtn');
-
-            if (!city) {
-                showMessage('请输入城市名称！', 'error');
-                return;
-            }
-
-            // 显示加载状态
-            document.getElementById('loadingState').style.display = 'block';
-            document.getElementById('weatherDisplay').style.display = 'none';
-            document.getElementById('locationInfo').style.display = 'none';
-            searchBtn.disabled = true;
-            searchBtn.textContent = '查询中...';
-
-            try {
-                // 调用我们的 Vercel API
-                const response = await fetch('/api/weather', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        city: city,
-                        country: country
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    currentWeatherData = data;
-                    displayWeather(data);
-                    showMessage(`成功获取 ${city} 的天气信息！`, 'success');
-                } else {
-                    showMessage(data.error || '获取天气数据失败', 'error');
-                }
-            } catch (error) {
-                showMessage(`网络错误：${error.message}`, 'error');
-            } finally {
-                // 隐藏加载状态
-                document.getElementById('loadingState').style.display = 'none';
-                searchBtn.disabled = false;
-                searchBtn.textContent = '查询天气';
-            }
-        }
-
-        // 显示天气数据
-        function displayWeather(data) {
-            // 显示位置信息
-            const locationInfo = document.getElementById('locationInfo');
-            const locationText = document.getElementById('locationText');
-            locationText.textContent = `${data.location.name}, ${data.location.country} (${data.location.lat}, ${data.location.lon})`;
-            locationInfo.style.display = 'block';
-
-            // 显示当前天气
-            const currentWeather = data.current;
-            document.getElementById('currentIcon').textContent = getWeatherIcon(currentWeather.weather[0].main);
-            document.getElementById('currentTemp').textContent = `${Math.round(currentWeather.main.temp)}°C`;
-            document.getElementById('currentDesc').textContent = currentWeather.weather[0].description;
-            document.getElementById('humidity').textContent = `${currentWeather.main.humidity}%`;
-            document.getElementById('windSpeed').textContent = `${currentWeather.wind.speed} m/s`;
-            document.getElementById('pressure').textContent = `${currentWeather.main.pressure} hPa`;
-            document.getElementById('visibility').textContent = `${Math.round(currentWeather.visibility / 1000)} km`;
-
-            // 显示预报
-            displayForecast(data.forecast);
-
-            // 显示天气区域
-            document.getElementById('weatherDisplay').style.display = 'block';
-        }
-
-        // 显示预报数据
-        function displayForecast(forecastData) {
-            const forecastGrid = document.getElementById('forecastGrid');
-            forecastGrid.innerHTML = '';
-
-            forecastData.list.slice(0, 5).forEach((day, index) => {
-                const date = new Date(day.dt * 1000);
-                const dayName = date.toLocaleDateString('zh-CN', { weekday: 'short' });
-
-                const forecastItem = document.createElement('div');
-                forecastItem.className = 'forecast-item';
-                forecastItem.innerHTML = `
-                    <div class="forecast-date">${dayName}</div>
-                    <div class="forecast-icon">${getWeatherIcon(day.weather[0].main)}</div>
-                    <div class="forecast-temp">${Math.round(day.main.temp_max)}°/${Math.round(day.main.temp_min)}°</div>
-                    <div class="forecast-desc">${day.weather[0].description}</div>
-                `;
-                forecastGrid.appendChild(forecastItem);
-            });
-        }
-
-        // 获取天气图标
-        function getWeatherIcon(weatherMain) {
-            const icons = {
-                'Clear': '☀️',
-                'Clouds': '☁️',
-                'Rain': '🌧️',
-                'Drizzle': '🌦️',
-                'Thunderstorm': '⛈️',
-                'Snow': '❄️',
-                'Mist': '🌫️',
-                'Fog': '🌫️',
-                'Haze': '🌫️'
-            };
-            return icons[weatherMain] || '🌤️';
-        }
-
-        // 回车键搜索
-        document.getElementById('cityInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                getWeather();
-            }
-        });
-
-        // 页面加载完成后自动查询北京天气
+        // 简单的页面交互效果
         document.addEventListener('DOMContentLoaded', function () {
-            getWeather();
+            // 为 API 卡片添加点击效果
+            const apiCards = document.querySelectorAll('.api-card');
+            apiCards.forEach(card => {
+                card.addEventListener('click', function () {
+                    const link = this.querySelector('.api-btn');
+                    if (link) {
+                        window.location.href = link.href;
+                    }
+                });
+            });
         });
     </script>
 </body>
