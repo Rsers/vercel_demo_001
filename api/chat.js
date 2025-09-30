@@ -1,4 +1,4 @@
-// DeepSeek AI 聊天 API - 展示 Vercel API 集成功能
+// DeepSeek AI 聊天 API - 基于资料库的智能客服
 export default async function handler(req, res) {
   // 设置 CORS 头部
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -16,17 +16,31 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message, model = 'deepseek-chat' } = req.body;
+    const { message, model = 'deepseek-chat', use_knowledge = true } = req.body;
 
     if (!message) {
       return res.status(400).json({ error: '消息内容不能为空' });
     }
 
-    console.log(`🤖 正在调用 DeepSeek API，模型: ${model}`);
+    console.log(`🤖 正在调用 DeepSeek API，模型: ${model}，使用资料库: ${use_knowledge}`);
+
+    // 🚀 获取相关资料库内容
+    let knowledgeContext = '';
+    if (use_knowledge && global.knowledgeBase && global.knowledgeBase.length > 0) {
+      knowledgeContext = await getRelevantKnowledge(message);
+      console.log(`📚 找到相关资料: ${knowledgeContext ? '是' : '否'}`);
+    }
 
     // 🚀 调用 DeepSeek API
     const DEEPSEEK_API_KEY = 'sk-74770ffee655466ca5e4d45d390964ba';
     const DEEPSEEK_API_URL = 'https://api.deepseek.com/chat/completions';
+
+    // 构建系统提示词
+    let systemPrompt = '你是一个专业的客服助手，专门帮助用户解答问题。请用中文回答，回答要简洁明了、准确专业。';
+
+    if (knowledgeContext) {
+      systemPrompt += `\n\n请基于以下资料库内容来回答问题：\n${knowledgeContext}\n\n如果用户的问题在资料库中有相关信息，请优先使用资料库的内容来回答。如果资料库中没有相关信息，请基于你的知识来回答。`;
+    }
 
     const response = await fetch(DEEPSEEK_API_URL, {
       method: 'POST',
@@ -39,7 +53,7 @@ export default async function handler(req, res) {
         messages: [
           {
             role: 'system',
-            content: '你是一个有用的AI助手，专门帮助用户解答问题。请用中文回答，回答要简洁明了。'
+            content: systemPrompt
           },
           {
             role: 'user',
@@ -48,7 +62,7 @@ export default async function handler(req, res) {
         ],
         stream: false,
         temperature: 0.7,
-        max_tokens: 1000
+        max_tokens: 1500
       })
     });
 
@@ -73,13 +87,16 @@ export default async function handler(req, res) {
       message: message,
       response: aiResponse,
       model: model,
+      use_knowledge: use_knowledge,
+      knowledge_used: !!knowledgeContext,
       usage: data.usage || null,
       timestamp: new Date().toISOString(),
       apiInfo: {
         source: 'DeepSeek API',
         model: model,
         integration: 'Vercel Serverless Functions',
-        note: '这是通过 Vercel API 集成的真实 AI 聊天服务'
+        knowledge_base: use_knowledge ? '已启用' : '未启用',
+        note: '这是基于资料库的智能客服系统'
       }
     };
 
@@ -93,4 +110,26 @@ export default async function handler(req, res) {
       details: '这展示了为什么需要服务端 API - AI 服务调用可能失败，需要统一的错误处理'
     });
   }
+}
+
+// 获取相关资料库内容
+async function getRelevantKnowledge(query) {
+  if (!global.knowledgeBase || global.knowledgeBase.length === 0) {
+    return '';
+  }
+
+  const queryLower = query.toLowerCase();
+  const relevantItems = global.knowledgeBase.filter(item => {
+    const contentLower = item.content.toLowerCase();
+    return contentLower.includes(queryLower) ||
+      queryLower.split(' ').some(word => contentLower.includes(word));
+  });
+
+  if (relevantItems.length === 0) {
+    return '';
+  }
+
+  // 返回最相关的前3条资料
+  const topItems = relevantItems.slice(0, 3);
+  return topItems.map(item => `[${item.category}] ${item.content}`).join('\n');
 }
