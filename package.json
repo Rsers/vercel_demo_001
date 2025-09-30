@@ -19,7 +19,9 @@
   "author": "Rsers",
   "license": "MIT",
   "dependencies": {
-    "vercel": "^32.0.0"
+    "@vercel/postgres": "^0.10.0",
+    "vercel": "^32.0.0",
+    "bcryptjs": "^2.4.3"
   },
   "devDependencies": {
     "nodemon": "^3.0.0"
