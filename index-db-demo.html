@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vercel 数据库实践演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            background: #f8fafc;
+        }
+
+        .section h2 {
+            color: #374151;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0.25rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .users-table th,
+        .users-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .users-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .users-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4f46e5;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .users-table {
+                font-size: 0.875rem;
+            }
+
+            .users-table th,
+            .users-table td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗄️ Vercel 数据库实践演示</h1>
+            <p>使用 Vercel PostgreSQL 进行 CRUD 操作实践</p>
+        </div>
+
+        <div class="content">
+            <!-- 数据库初始化 -->
+            <div class="section">
+                <h2>📊 数据库初始化</h2>
+                <p>首先需要初始化数据库表，这只需要执行一次。</p>
+                <button class="btn btn-primary" onclick="initDatabase()">初始化数据库</button>
+                <div id="init-result"></div>
+            </div>
+
+            <!-- 添加用户 -->
+            <div class="section">
+                <h2>➕ 添加用户</h2>
+                <form id="user-form">
+                    <div class="form-group">
+                        <label for="name">姓名 *</label>
+                        <input type="text" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">邮箱 *</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="age">年龄</label>
+                        <input type="number" id="age" min="1" max="120">
+                    </div>
+                    <div class="form-group">
+                        <label for="city">城市</label>
+                        <input type="text" id="city">
+                    </div>
+                    <button type="submit" class="btn btn-primary">添加用户</button>
+                </form>
+                <div id="add-result"></div>
+            </div>
+
+            <!-- 搜索用户 -->
+            <div class="section">
+                <h2>🔍 搜索用户</h2>
+                <input type="text" class="search-box" id="search-input" placeholder="输入姓名、邮箱或城市进行搜索...">
+                <button class="btn btn-secondary" onclick="searchUsers()">搜索</button>
+                <button class="btn btn-secondary" onclick="loadAllUsers()">显示所有用户</button>
+                <div id="search-result"></div>
+            </div>
+
+            <!-- 用户列表 -->
+            <div class="section">
+                <h2>📋 用户列表</h2>
+                <button class="btn btn-secondary" onclick="loadAllUsers()">刷新列表</button>
+                <div id="users-list">
+                    <div class="loading">点击"刷新列表"加载用户数据</div>
+                </div>
+            </div>
+
+            <!-- 统计信息 -->
+            <div class="section">
+                <h2>📈 统计信息</h2>
+                <button class="btn btn-secondary" onclick="loadStats()">刷新统计</button>
+                <div id="stats-content">
+                    <div class="loading">点击"刷新统计"加载统计数据</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API 调用函数
+        async function callAPI(action, data = null) {
+            try {
+                const response = await fetch('/api/db-demo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ action, data })
+                });
+
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('API 调用错误:', error);
+                return { success: false, error: '网络错误: ' + error.message };
+            }
+        }
+
+        // 显示消息
+        function showMessage(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+        }
+
+        // 初始化数据库
+        async function initDatabase() {
+            showMessage('init-result', '正在初始化数据库...', 'info');
+
+            const result = await callAPI('init');
+
+            if (result.success) {
+                showMessage('init-result', '✅ ' + result.message, 'success');
+            } else {
+                showMessage('init-result', '❌ ' + result.error, 'error');
+            }
+        }
+
+        // 添加用户
+        document.getElementById('user-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const age = document.getElementById('age').value;
+            const city = document.getElementById('city').value;
+
+            showMessage('add-result', '正在添加用户...', 'info');
+
+            const result = await callAPI('insert', {
+                name,
+                email,
+                age: age ? parseInt(age) : null,
+                city: city || null
+            });
+
+            if (result.success) {
+                showMessage('add-result', '✅ ' + result.message, 'success');
+                document.getElementById('user-form').reset();
+                loadAllUsers(); // 刷新用户列表
+            } else {
+                showMessage('add-result', '❌ ' + result.error, 'error');
+            }
+        });
+
+        // 加载所有用户
+        async function loadAllUsers() {
+            const usersList = document.getElementById('users-list');
+            usersList.innerHTML = '<div class="loading">正在加载用户列表...</div>';
+
+            const result = await callAPI('select');
+
+            if (result.success) {
+                displayUsers(result.users);
+            } else {
+                usersList.innerHTML = `<div class="alert alert-error">❌ ${result.error}</div>`;
+            }
+        }
+
+        // 显示用户列表
+        function displayUsers(users) {
+            const usersList = document.getElementById('users-list');
+
+            if (users.length === 0) {
+                usersList.innerHTML = '<div class="alert alert-info">📝 暂无用户数据</div>';
+                return;
+            }
+
+            let tableHTML = `
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>姓名</th>
+                            <th>邮箱</th>
+                            <th>年龄</th>
+                            <th>城市</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            users.forEach(user => {
+                tableHTML += `
+                    <tr>
+                        <td>${user.id}</td>
+                        <td>${user.name}</td>
+                        <td>${user.email}</td>
+                        <td>${user.age || '-'}</td>
+                        <td>${user.city || '-'}</td>
+                        <td>${new Date(user.created_at).toLocaleString('zh-CN')}</td>
+                        <td>
+                            <button class="btn btn-secondary" onclick="editUser(${user.id})">编辑</button>
+                            <button class="btn btn-danger" onclick="deleteUser(${user.id})">删除</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += '</tbody></table>';
+            usersList.innerHTML = tableHTML;
+        }
+
+        // 搜索用户
+        async function searchUsers() {
+            const searchTerm = document.getElementById('search-input').value;
+
+            if (!searchTerm.trim()) {
+                showMessage('search-result', '请输入搜索关键词', 'info');
+                return;
+            }
+
+            showMessage('search-result', '正在搜索...', 'info');
+
+            const result = await callAPI('search', { search: searchTerm });
+
+            if (result.success) {
+                if (result.users.length === 0) {
+                    showMessage('search-result', '🔍 未找到匹配的用户', 'info');
+                } else {
+                    showMessage('search-result', `🔍 找到 ${result.users.length} 个匹配的用户`, 'success');
+                    displayUsers(result.users);
+                }
+            } else {
+                showMessage('search-result', '❌ ' + result.error, 'error');
+            }
+        }
+
+        // 编辑用户（简化版）
+        async function editUser(userId) {
+            const newName = prompt('请输入新的姓名:');
+            if (newName === null) return;
+
+            const newEmail = prompt('请输入新的邮箱:');
+            if (newEmail === null) return;
+
+            const result = await callAPI('update', {
+                id: userId,
+                name: newName,
+                email: newEmail
+            });
+
+            if (result.success) {
+                alert('✅ 用户信息更新成功');
+                loadAllUsers();
+            } else {
+                alert('❌ ' + result.error);
+            }
+        }
+
+        // 删除用户
+        async function deleteUser(userId) {
+            if (!confirm('确定要删除这个用户吗？')) return;
+
+            const result = await callAPI('delete', { id: userId });
+
+            if (result.success) {
+                alert('✅ 用户删除成功');
+                loadAllUsers();
+            } else {
+                alert('❌ ' + result.error);
+            }
+        }
+
+        // 加载统计信息
+        async function loadStats() {
+            const statsContent = document.getElementById('stats-content');
+            statsContent.innerHTML = '<div class="loading">正在加载统计数据...</div>';
+
+            const result = await callAPI('stats');
+
+            if (result.success) {
+                displayStats(result.stats);
+            } else {
+                statsContent.innerHTML = `<div class="alert alert-error">❌ ${result.error}</div>`;
+            }
+        }
+
+        // 显示统计信息
+        function displayStats(stats) {
+            const statsContent = document.getElementById('stats-content');
+
+            let statsHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.total_users}</div>
+                        <div class="stat-label">总用户数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.users_with_age || 0}</div>
+                        <div class="stat-label">有年龄信息</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.avg_age || '-'}</div>
+                        <div class="stat-label">平均年龄</div>
+                    </div>
+                </div>
+            `;
+
+            if (stats.top_cities && stats.top_cities.length > 0) {
+                statsHTML += `
+                    <div style="margin-top: 2rem;">
+                        <h3>🏙️ 热门城市</h3>
+                        <ul style="list-style: none; padding: 0;">
+                `;
+
+                stats.top_cities.forEach(city => {
+                    statsHTML += `
+                        <li style="padding: 0.5rem; background: white; margin: 0.5rem 0; border-radius: 8px; display: flex; justify-content: space-between;">
+                            <span>${city.city}</span>
+                            <span style="color: #4f46e5; font-weight: bold;">${city.count} 人</span>
+                        </li>
+                    `;
+                });
+
+                statsHTML += '</ul></div>';
+            }
+
+            statsContent.innerHTML = statsHTML;
+        }
+
+        // 页面加载时自动加载统计信息
+        window.addEventListener('load', function () {
+            loadStats();
+        });
+
+        // 搜索框回车事件
+        document.getElementById('search-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                searchUsers();
+            }
+        });
+    </script>
+</body>
+
+</html>
