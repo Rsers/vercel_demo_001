@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vercel 高级功能演示</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            margin-top: 30px;
+        }
+
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            padding: 10px 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        .result-area {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .feature-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .log-entry {
+            border-bottom: 1px solid #eee;
+            padding: 8px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-timestamp {
+            color: #666;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="text-center text-white mb-5">🚀 Vercel 高级功能演示</h1>
+
+        <div class="row">
+            <!-- Edge Functions -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card feature-card h-100">
+                    <div class="card-header">
+                        <div class="text-center">
+                            <div class="feature-icon">🌐</div>
+                            <h5 class="mb-0">Edge Functions</h5>
+                            <small>边缘计算</small>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            在边缘节点运行的函数，延迟更低，性能更好。
+                            支持地理位置检测和边缘缓存。
+                        </p>
+                        <button class="btn btn-custom w-100" onclick="testEdgeFunction()">
+                            测试 Edge Function
+                        </button>
+                        <div id="edge-result" class="result-area" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middleware -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card feature-card h-100">
+                    <div class="card-header">
+                        <div class="text-center">
+                            <div class="feature-icon">🔄</div>
+                            <h5 class="mb-0">Middleware</h5>
+                            <small>请求中间件</small>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            在请求到达页面/API 之前运行的代码。
+                            支持认证、A/B测试、重定向等功能。
+                        </p>
+                        <button class="btn btn-custom w-100" onclick="testMiddleware()">
+                            测试 Middleware
+                        </button>
+                        <div id="middleware-result" class="result-area" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cron Jobs -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card feature-card h-100">
+                    <div class="card-header">
+                        <div class="text-center">
+                            <div class="feature-icon">⏰</div>
+                            <h5 class="mb-0">Cron Jobs</h5>
+                            <small>定时任务</small>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            定时执行的任务，用于数据清理、备份、
+                            发送通知等自动化操作。
+                        </p>
+                        <button class="btn btn-custom w-100" onclick="testCronJob()">
+                            测试 Cron Job
+                        </button>
+                        <div id="cron-result" class="result-area" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Webhooks -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card feature-card h-100">
+                    <div class="card-header">
+                        <div class="text-center">
+                            <div class="feature-icon">🔗</div>
+                            <h5 class="mb-0">Webhooks</h5>
+                            <small>事件驱动</small>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            事件驱动的处理机制，接收来自各种服务的事件通知，
+                            实现自动化业务流程。
+                        </p>
+                        <button class="btn btn-custom w-100" onclick="testWebhook()">
+                            测试 Webhook
+                        </button>
+                        <div id="webhook-result" class="result-area" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 监控面板 -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card feature-card h-100">
+                    <div class="card-header">
+                        <div class="text-center">
+                            <div class="feature-icon">📊</div>
+                            <h5 class="mb-0">监控面板</h5>
+                            <small>实时监控</small>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            查看所有功能的执行日志和状态。
+                            实时监控系统运行情况。
+                        </p>
+                        <button class="btn btn-custom w-100" onclick="showMonitoring()">
+                            查看监控面板
+                        </button>
+                        <div id="monitoring-result" class="result-area" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 功能对比 -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card feature-card h-100">
+                    <div class="card-header">
+                        <div class="text-center">
+                            <div class="feature-icon">📋</div>
+                            <h5 class="mb-0">功能对比</h5>
+                            <small>Vercel vs Supabase</small>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            对比 Vercel 和 Supabase 的功能差异，
+                            了解各自的优势和适用场景。
+                        </p>
+                        <button class="btn btn-custom w-100" onclick="showComparison()">
+                            查看功能对比
+                        </button>
+                        <div id="comparison-result" class="result-area" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 全局日志区域 -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">📝 执行日志</h5>
+            </div>
+            <div class="card-body">
+                <div id="global-logs">
+                    <p class="text-muted">暂无执行日志</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 全局日志记录
+        function addLog(message, type = 'info') {
+            const logsContainer = document.getElementById('global-logs');
+            const timestamp = new Date().toLocaleTimeString();
+
+            // 移除默认提示
+            const defaultP = logsContainer.querySelector('.text-muted');
+            if (defaultP) defaultP.remove();
+
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `
+                <span class="log-timestamp">[${timestamp}]</span>
+                <span class="status-badge status-${type}">${type.toUpperCase()}</span>
+                ${message}
+            `;
+
+            logsContainer.insertBefore(logEntry, logsContainer.firstChild);
+
+            // 限制日志数量
+            const logs = logsContainer.querySelectorAll('.log-entry');
+            if (logs.length > 20) {
+                logs[logs.length - 1].remove();
+            }
+        }
+
+        // 显示结果
+        function showResult(elementId, content, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.innerHTML = content;
+        }
+
+        // 测试 Edge Function
+        async function testEdgeFunction() {
+            addLog('开始测试 Edge Function...', 'info');
+
+            try {
+                const response = await fetch('/api/edge-demo');
+                const data = await response.json();
+
+                const resultHtml = `
+                    <div class="status-badge status-success">SUCCESS</div>
+                    <h6>地理位置信息:</h6>
+                    <ul>
+                        <li>国家: ${data.location.country}</li>
+                        <li>城市: ${data.location.city}</li>
+                        <li>地区: ${data.location.region}</li>
+                        <li>时区: ${data.location.timezone}</li>
+                    </ul>
+                    <h6>边缘计算特性:</h6>
+                    <ul>
+                        <li>运行时: ${data.edge.runtime}</li>
+                        <li>延迟: ${data.edge.latency}</li>
+                        <li>处理时间: ${data.processingTime}ms</li>
+                    </ul>
+                    <p><strong>消息:</strong> ${data.message}</p>
+                `;
+
+                showResult('edge-result', resultHtml, 'success');
+                addLog('Edge Function 测试成功', 'success');
+
+            } catch (error) {
+                const resultHtml = `
+                    <div class="status-badge status-error">ERROR</div>
+                    <p>错误: ${error.message}</p>
+                `;
+                showResult('edge-result', resultHtml, 'error');
+                addLog(`Edge Function 测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 测试 Middleware
+        async function testMiddleware() {
+            addLog('开始测试 Middleware...', 'info');
+
+            try {
+                // 测试不同的路径来触发 middleware
+                const testPaths = ['/', '/admin', '/old-page'];
+                const results = [];
+
+                for (const path of testPaths) {
+                    const response = await fetch(path);
+                    const headers = {};
+
+                    // 获取自定义头部
+                    response.headers.forEach((value, key) => {
+                        if (key.startsWith('x-') || key.startsWith('X-')) {
+                            headers[key] = value;
+                        }
+                    });
+
+                    results.push({
+                        path: path,
+                        status: response.status,
+                        headers: headers
+                    });
+                }
+
+                const resultHtml = `
+                    <div class="status-badge status-success">SUCCESS</div>
+                    <h6>Middleware 测试结果:</h6>
+                    ${results.map(result => `
+                        <div class="mb-2">
+                            <strong>路径:</strong> ${result.path}<br>
+                            <strong>状态:</strong> ${result.status}<br>
+                            <strong>自定义头部:</strong>
+                            <ul>
+                                ${Object.entries(result.headers).map(([key, value]) =>
+                    `<li>${key}: ${value}</li>`
+                ).join('')}
+                            </ul>
+                        </div>
+                    `).join('')}
+                `;
+
+                showResult('middleware-result', resultHtml, 'success');
+                addLog('Middleware 测试成功', 'success');
+
+            } catch (error) {
+                const resultHtml = `
+                    <div class="status-badge status-error">ERROR</div>
+                    <p>错误: ${error.message}</p>
+                `;
+                showResult('middleware-result', resultHtml, 'error');
+                addLog(`Middleware 测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 测试 Cron Job
+        async function testCronJob() {
+            addLog('开始测试 Cron Job...', 'info');
+
+            try {
+                // 注意：实际的 Cron Job 只能由 Vercel 定时触发
+                // 这里我们模拟调用
+                const response = await fetch('/api/cron-cleanup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-vercel-cron': 'true' // 模拟 Cron 请求
+                    }
+                });
+
+                const data = await response.json();
+
+                const resultHtml = `
+                    <div class="status-badge status-success">SUCCESS</div>
+                    <h6>Cron Job 执行结果:</h6>
+                    <p><strong>消息:</strong> ${data.message}</p>
+                    <h6>任务执行情况:</h6>
+                    <ul>
+                        <li>总任务数: ${data.results.summary.totalTasks}</li>
+                        <li>成功任务: ${data.results.summary.successfulTasks}</li>
+                        <li>失败任务: ${data.results.summary.failedTasks}</li>
+                        <li>总执行时间: ${data.results.summary.totalTime}ms</li>
+                    </ul>
+                    <h6>详细任务:</h6>
+                    ${data.results.tasks.map(task => `
+                        <div class="mb-1">
+                            <strong>${task.name}:</strong> 
+                            <span class="status-badge status-${task.status}">${task.status}</span>
+                            ${task.details ? `<br><small>${task.details.message}</small>` : ''}
+                        </div>
+                    `).join('')}
+                `;
+
+                showResult('cron-result', resultHtml, 'success');
+                addLog('Cron Job 测试成功', 'success');
+
+            } catch (error) {
+                const resultHtml = `
+                    <div class="status-badge status-error">ERROR</div>
+                    <p>错误: ${error.message}</p>
+                `;
+                showResult('cron-result', resultHtml, 'error');
+                addLog(`Cron Job 测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 测试 Webhook
+        async function testWebhook() {
+            addLog('开始测试 Webhook...', 'info');
+
+            try {
+                const testEvents = [
+                    {
+                        type: 'user_registration',
+                        source: 'test',
+                        data: {
+                            userId: 123,
+                            name: '测试用户',
+                            email: 'test@example.com'
+                        }
+                    },
+                    {
+                        type: 'payment_success',
+                        source: 'test',
+                        data: {
+                            orderId: 'ORDER-001',
+                            email: 'customer@example.com',
+                            amount: 99.99,
+                            items: [{ id: 1, name: '测试商品' }]
+                        }
+                    }
+                ];
+
+                const results = [];
+
+                for (const event of testEvents) {
+                    const response = await fetch('/api/webhook-handler', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-webhook-source': 'test',
+                            'x-webhook-signature': 'test-signature'
+                        },
+                        body: JSON.stringify(event)
+                    });
+
+                    const data = await response.json();
+                    results.push({
+                        event: event.type,
+                        success: data.success,
+                        result: data.result
+                    });
+                }
+
+                const resultHtml = `
+                    <div class="status-badge status-success">SUCCESS</div>
+                    <h6>Webhook 测试结果:</h6>
+                    ${results.map(result => `
+                        <div class="mb-3">
+                            <strong>事件类型:</strong> ${result.event}<br>
+                            <strong>处理状态:</strong> 
+                            <span class="status-badge status-${result.success ? 'success' : 'error'}">
+                                ${result.success ? 'SUCCESS' : 'FAILED'}
+                            </span><br>
+                            <strong>处理结果:</strong> ${result.result.message}
+                            <h6>执行的操作:</h6>
+                            <ul>
+                                ${result.result.actions.map(action =>
+                    `<li>${action.name}: ${action.result.message}</li>`
+                ).join('')}
+                            </ul>
+                        </div>
+                    `).join('')}
+                `;
+
+                showResult('webhook-result', resultHtml, 'success');
+                addLog('Webhook 测试成功', 'success');
+
+            } catch (error) {
+                const resultHtml = `
+                    <div class="status-badge status-error">ERROR</div>
+                    <p>错误: ${error.message}</p>
+                `;
+                showResult('webhook-result', resultHtml, 'error');
+                addLog(`Webhook 测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 显示监控面板
+        function showMonitoring() {
+            const resultHtml = `
+                <div class="status-badge status-info">INFO</div>
+                <h6>监控面板功能:</h6>
+                <ul>
+                    <li>实时日志监控</li>
+                    <li>性能指标追踪</li>
+                    <li>错误率统计</li>
+                    <li>用户行为分析</li>
+                </ul>
+                <p><strong>提示:</strong> 访问 <a href="analytics-dashboard.html" target="_blank">监控仪表板</a> 查看详细监控数据。</p>
+            `;
+            showResult('monitoring-result', resultHtml, 'info');
+            addLog('显示监控面板信息', 'info');
+        }
+
+        // 显示功能对比
+        function showComparison() {
+            const resultHtml = `
+                <div class="status-badge status-info">INFO</div>
+                <h6>Vercel vs Supabase 功能对比:</h6>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>功能</th>
+                            <th>Vercel</th>
+                            <th>Supabase</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>边缘计算</td>
+                            <td><span class="status-badge status-success">✅</span></td>
+                            <td><span class="status-badge status-error">❌</span></td>
+                        </tr>
+                        <tr>
+                            <td>定时任务</td>
+                            <td><span class="status-badge status-success">✅</span></td>
+                            <td><span class="status-badge status-error">❌</span></td>
+                        </tr>
+                        <tr>
+                            <td>中间件</td>
+                            <td><span class="status-badge status-success">✅</span></td>
+                            <td><span class="status-badge status-error">❌</span></td>
+                        </tr>
+                        <tr>
+                            <td>实时功能</td>
+                            <td><span class="status-badge status-error">❌</span></td>
+                            <td><span class="status-badge status-success">✅</span></td>
+                        </tr>
+                        <tr>
+                            <td>认证系统</td>
+                            <td><span class="status-badge status-info">基础</span></td>
+                            <td><span class="status-badge status-success">完整</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+            showResult('comparison-result', resultHtml, 'info');
+            addLog('显示功能对比信息', 'info');
+        }
+
+        // 页面加载完成后的初始化
+        window.addEventListener('load', () => {
+            addLog('页面加载完成，Vercel 高级功能演示就绪', 'success');
+        });
+    </script>
+</body>
+
+</html>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 智能助手 - Vercel API 演示</title>
+    <title>Vercel 全栈开发演示平台</title>
     <style>
         * {
             margin: 0;
@@ -44,18 +44,38 @@
 
         .api-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
             margin-bottom: 30px;
         }
 
         .api-card {
             background: white;
             border-radius: 15px;
-            padding: 30px;
+            padding: 25px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s, box-shadow 0.3s;
             border-left: 4px solid #74b9ff;
+        }
+
+        .api-card:nth-child(1) {
+            border-left-color: #74b9ff;
+        }
+
+        .api-card:nth-child(2) {
+            border-left-color: #6c5ce7;
+        }
+
+        .api-card:nth-child(3) {
+            border-left-color: #00b894;
+        }
+
+        .api-card:nth-child(4) {
+            border-left-color: #e17055;
+        }
+
+        .api-card:nth-child(5) {
+            border-left-color: #fd79a8;
         }
 
         .api-card:hover {
@@ -70,6 +90,26 @@
             align-items: center;
             gap: 10px;
             font-size: 1.3rem;
+        }
+
+        .api-card:nth-child(1) h3 {
+            color: #74b9ff;
+        }
+
+        .api-card:nth-child(2) h3 {
+            color: #6c5ce7;
+        }
+
+        .api-card:nth-child(3) h3 {
+            color: #00b894;
+        }
+
+        .api-card:nth-child(4) h3 {
+            color: #e17055;
+        }
+
+        .api-card:nth-child(5) h3 {
+            color: #fd79a8;
         }
 
         .api-card p {
@@ -96,6 +136,26 @@
             left: 0;
             color: #74b9ff;
             font-weight: bold;
+        }
+
+        .api-card:nth-child(1) .api-features li::before {
+            color: #74b9ff;
+        }
+
+        .api-card:nth-child(2) .api-features li::before {
+            color: #6c5ce7;
+        }
+
+        .api-card:nth-child(3) .api-features li::before {
+            color: #00b894;
+        }
+
+        .api-card:nth-child(4) .api-features li::before {
+            color: #e17055;
+        }
+
+        .api-card:nth-child(5) .api-features li::before {
+            color: #fd79a8;
         }
 
         .api-btn {
@@ -125,6 +185,30 @@
 
         .api-btn.chat:hover {
             background: #5f3dc4;
+        }
+
+        .api-btn.database {
+            background: #00b894;
+        }
+
+        .api-btn.database:hover {
+            background: #00a085;
+        }
+
+        .api-btn.advanced {
+            background: #e17055;
+        }
+
+        .api-btn.advanced:hover {
+            background: #d63031;
+        }
+
+        .api-btn.monitoring {
+            background: #fd79a8;
+        }
+
+        .api-btn.monitoring:hover {
+            background: #e84393;
         }
 
 
@@ -173,8 +257,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🤖 AI 智能助手</h1>
-            <p>基于 Vercel API 的 AI 服务演示平台</p>
+            <h1>🚀 Vercel 全栈开发平台</h1>
+            <p>完整的 Vercel 功能演示 - 从基础部署到高级功能</p>
         </div>
 
         <div class="main-content">
@@ -210,17 +294,67 @@
                     </ul>
                     <a href="index-ai.html" class="api-btn chat">体验智能客服</a>
                 </div>
+
+                <!-- 数据库演示 -->
+                <div class="api-card">
+                    <h3>🗄️ 数据库管理系统</h3>
+                    <p>完整的用户数据管理系统，演示 Vercel 数据库功能。</p>
+                    <ul class="api-features">
+                        <li>用户数据管理</li>
+                        <li>CRUD 操作演示</li>
+                        <li>数据统计分析</li>
+                        <li>搜索和筛选</li>
+                        <li>实时数据更新</li>
+                        <li>性能监控</li>
+                    </ul>
+                    <a href="index-db-demo.html" class="api-btn database">体验数据库管理</a>
+                </div>
+
+                <!-- Vercel 高级功能 -->
+                <div class="api-card">
+                    <h3>🚀 Vercel 高级功能</h3>
+                    <p>探索 Vercel 的独有高级功能，包括边缘计算、中间件等。</p>
+                    <ul class="api-features">
+                        <li>Edge Functions 边缘计算</li>
+                        <li>Middleware 请求中间件</li>
+                        <li>Cron Jobs 定时任务</li>
+                        <li>Webhooks 事件驱动</li>
+                        <li>监控和性能分析</li>
+                        <li>功能对比演示</li>
+                    </ul>
+                    <a href="advanced-features.html" class="api-btn advanced">探索高级功能</a>
+                </div>
+
+                <!-- 监控仪表板 -->
+                <div class="api-card">
+                    <h3>📊 监控仪表板</h3>
+                    <p>实时监控系统运行状态，查看性能指标和用户行为分析。</p>
+                    <ul class="api-features">
+                        <li>实时性能监控</li>
+                        <li>用户行为追踪</li>
+                        <li>错误日志分析</li>
+                        <li>数据可视化图表</li>
+                        <li>系统健康状态</li>
+                        <li>历史数据查看</li>
+                    </ul>
+                    <a href="analytics-dashboard.html" class="api-btn monitoring">查看监控面板</a>
+                </div>
             </div>
 
-            <!-- API 信息说明 -->
+            <!-- 功能说明 -->
             <div class="api-info">
-                <h4>🔧 API 技术说明</h4>
-                <p><strong>为什么需要服务端 API？</strong></p>
-                <p>• AI 服务需要服务器端调用，保护 API 密钥安全</p>
-                <p>• 复杂的数据处理需要服务端计算能力</p>
-                <p>• 统一的错误处理和响应格式</p>
-                <p>• 服务端缓存和性能优化</p>
-                <p><strong>使用的技术：</strong> DeepSeek API + Vercel Serverless Functions</p>
+                <h4>🔧 技术架构说明</h4>
+                <p><strong>Vercel 平台优势：</strong></p>
+                <p>• 🌐 全球边缘部署，极低延迟</p>
+                <p>• ⚡ Serverless Functions，自动扩缩容</p>
+                <p>• 🔄 Edge Functions，边缘计算能力</p>
+                <p>• 📊 完整的监控和分析工具</p>
+                <p>• 🛡️ 内置安全防护和认证</p>
+                <p><strong>演示功能：</strong></p>
+                <p>• AI 服务集成 (DeepSeek API)</p>
+                <p>• 数据库操作 (PostgreSQL + CRUD)</p>
+                <p>• 高级功能 (Edge Functions, Middleware, Cron Jobs, Webhooks)</p>
+                <p>• 实时监控 (Analytics, Speed Insights)</p>
             </div>
         </div>
     </div>
