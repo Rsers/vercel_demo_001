@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的任务管理 - Vercel API 演示</title>
+    <title>智能天气助手 - Vercel API 演示</title>
     <style>
         * {
             margin: 0;
@@ -14,13 +13,13 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 50%, #6c5ce7 100%);
             min-height: 100vh;
             color: #333;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -34,7 +33,7 @@
         .header h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
         .header p {
@@ -46,27 +45,30 @@
             background: white;
             border-radius: 15px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
-        .user-section {
+        .search-section {
             background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
+            padding: 25px;
+            border-radius: 12px;
             margin-bottom: 30px;
-            border-left: 4px solid #007bff;
+            border-left: 4px solid #74b9ff;
         }
 
-        .user-section h3 {
-            color: #007bff;
-            margin-bottom: 15px;
+        .search-section h3 {
+            color: #74b9ff;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .form-row {
+        .search-form {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr auto;
             gap: 15px;
-            margin-bottom: 15px;
+            align-items: end;
         }
 
         .form-group {
@@ -75,13 +77,12 @@
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             font-weight: 600;
             color: #555;
         }
 
-        .form-group input,
-        .form-group textarea {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 12px;
             border: 2px solid #e9ecef;
@@ -90,14 +91,13 @@
             transition: border-color 0.3s;
         }
 
-        .form-group input:focus,
-        .form-group textarea:focus {
+        .form-group input:focus, .form-group select:focus {
             outline: none;
-            border-color: #007bff;
+            border-color: #74b9ff;
         }
 
         .btn {
-            background: #007bff;
+            background: #74b9ff;
             color: white;
             border: none;
             padding: 12px 24px;
@@ -106,117 +106,148 @@
             font-size: 14px;
             font-weight: 600;
             transition: all 0.3s;
-            margin-right: 10px;
-            margin-bottom: 10px;
+            height: fit-content;
         }
 
         .btn:hover {
-            background: #0056b3;
+            background: #0984e3;
             transform: translateY(-1px);
         }
 
-        .btn-success {
-            background: #28a745;
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
         }
 
-        .btn-success:hover {
-            background: #1e7e34;
+        .weather-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
         }
 
-        .btn-danger {
-            background: #dc3545;
+        .current-weather {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
         }
 
-        .btn-danger:hover {
-            background: #c82333;
+        .weather-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
         }
 
-        .btn-secondary {
-            background: #6c757d;
+        .temperature {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
         }
 
-        .btn-secondary:hover {
-            background: #545b62;
+        .weather-description {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            opacity: 0.9;
         }
 
-        .tasks-section {
-            margin-top: 30px;
+        .weather-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
         }
 
-        .tasks-section h3 {
-            color: #333;
+        .detail-item {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .detail-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .forecast-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+        }
+
+        .forecast-section h3 {
+            color: #74b9ff;
             margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .task-form {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-        }
-
-        .task-list {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .task-item {
-            padding: 20px;
-            border-bottom: 1px solid #e9ecef;
-            display: flex;
-            align-items: center;
+        .forecast-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 15px;
-            transition: background-color 0.3s;
         }
 
-        .task-item:hover {
-            background: #f8f9fa;
+        .forecast-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .task-item:last-child {
-            border-bottom: none;
-        }
-
-        .task-checkbox {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-
-        .task-content {
-            flex: 1;
-        }
-
-        .task-title {
+        .forecast-date {
             font-weight: 600;
-            margin-bottom: 5px;
-            color: #333;
+            margin-bottom: 10px;
+            color: #555;
         }
 
-        .task-description {
+        .forecast-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .forecast-temp {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #74b9ff;
+        }
+
+        .forecast-desc {
+            font-size: 0.9rem;
             color: #666;
-            font-size: 14px;
-        }
-
-        .task-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 12px;
+            margin-top: 5px;
         }
 
         .loading {
             text-align: center;
-            padding: 20px;
+            padding: 40px;
             color: #666;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #74b9ff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         .error {
@@ -237,142 +268,158 @@
             border: 1px solid #c3e6cb;
         }
 
-        .welcome-message {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .stat-card {
-            background: #f8f9fa;
+        .location-info {
+            background: #e3f2fd;
             padding: 15px;
             border-radius: 8px;
-            text-align: center;
-            border-left: 4px solid #007bff;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
         }
 
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #007bff;
+        .location-info h4 {
+            color: #1976d2;
+            margin-bottom: 5px;
         }
 
-        .stat-label {
-            color: #666;
-            font-size: 14px;
+        .location-info p {
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        .api-info {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .api-info h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .api-info p {
+            color: #856404;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
         }
 
         @media (max-width: 768px) {
-            .form-row {
+            .weather-display {
                 grid-template-columns: 1fr;
             }
-
-            .task-item {
-                flex-direction: column;
-                align-items: flex-start;
+            
+            .search-form {
+                grid-template-columns: 1fr;
             }
-
-            .task-actions {
-                width: 100%;
-                justify-content: flex-end;
+            
+            .forecast-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             }
         }
     </style>
 </head>
-
 <body>
     <div class="container">
         <div class="header">
-            <h1>📋 我的任务管理</h1>
-            <p>基于 Vercel API 的智能任务管理系统</p>
+            <h1>🌤️ 智能天气助手</h1>
+            <p>基于 Vercel API 的实时天气查询系统</p>
         </div>
 
         <div class="main-content">
-            <!-- 欢迎区域 -->
-            <div class="welcome-message" id="welcomeMessage">
-                <h2>👋 欢迎使用任务管理系统！</h2>
-                <p>请先注册用户信息，然后开始管理你的任务</p>
-            </div>
-
-            <!-- 用户注册区域 -->
-            <div class="user-section" id="userSection">
-                <h3>👤 用户信息</h3>
-                <div class="form-row">
+            <!-- 搜索区域 -->
+            <div class="search-section">
+                <h3>🔍 天气查询</h3>
+                <div class="search-form">
                     <div class="form-group">
-                        <label for="userName">姓名</label>
-                        <input type="text" id="userName" placeholder="请输入你的姓名" value="张三">
+                        <label for="cityInput">城市名称</label>
+                        <input type="text" id="cityInput" placeholder="输入城市名称，如：北京、上海、深圳..." value="北京">
                     </div>
-                    <div class="form-group">
-                        <label for="userEmail">邮箱</label>
-                        <input type="email" id="userEmail" placeholder="请输入邮箱地址" value="zhangsan@example.com">
-                    </div>
+                    <button class="btn" onclick="getWeather()" id="searchBtn">查询天气</button>
                 </div>
                 <div class="form-group">
-                    <label for="userMessage">个人简介</label>
-                    <textarea id="userMessage" rows="3" placeholder="介绍一下自己...">我是一名开发者，喜欢使用现代化的工具来提高工作效率。</textarea>
-                </div>
-                <button class="btn btn-success" onclick="registerUser()">注册用户</button>
-                <button class="btn btn-secondary" onclick="getGreeting()">获取问候</button>
-            </div>
-
-            <!-- 统计信息 -->
-            <div class="stats" id="statsSection" style="display: none;">
-                <div class="stat-card">
-                    <div class="stat-number" id="totalTasks">0</div>
-                    <div class="stat-label">总任务</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="completedTasks">0</div>
-                    <div class="stat-label">已完成</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="pendingTasks">0</div>
-                    <div class="stat-label">待完成</div>
+                    <label for="countrySelect">国家/地区</label>
+                    <select id="countrySelect">
+                        <option value="CN">中国</option>
+                        <option value="US">美国</option>
+                        <option value="JP">日本</option>
+                        <option value="KR">韩国</option>
+                        <option value="GB">英国</option>
+                        <option value="FR">法国</option>
+                        <option value="DE">德国</option>
+                        <option value="AU">澳大利亚</option>
+                    </select>
                 </div>
             </div>
 
-            <!-- 任务管理区域 -->
-            <div class="tasks-section" id="tasksSection" style="display: none;">
-                <h3>📝 任务管理</h3>
+            <!-- 位置信息 -->
+            <div class="location-info" id="locationInfo" style="display: none;">
+                <h4>📍 当前位置信息</h4>
+                <p id="locationText"></p>
+            </div>
 
-                <!-- 添加任务表单 -->
-                <div class="task-form">
-                    <div class="form-group">
-                        <label for="taskTitle">任务标题</label>
-                        <input type="text" id="taskTitle" placeholder="输入任务标题...">
+            <!-- 天气显示区域 -->
+            <div id="weatherDisplay" style="display: none;">
+                <div class="weather-display">
+                    <!-- 当前天气 -->
+                    <div class="current-weather">
+                        <div class="weather-icon" id="currentIcon">☀️</div>
+                        <div class="temperature" id="currentTemp">25°C</div>
+                        <div class="weather-description" id="currentDesc">晴朗</div>
+                        <div class="weather-details">
+                            <div class="detail-item">
+                                <div class="detail-label">湿度</div>
+                                <div class="detail-value" id="humidity">65%</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">风速</div>
+                                <div class="detail-value" id="windSpeed">5 m/s</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">气压</div>
+                                <div class="detail-value" id="pressure">1013 hPa</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">能见度</div>
+                                <div class="detail-value" id="visibility">10 km</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="taskDescription">任务描述</label>
-                        <textarea id="taskDescription" rows="2" placeholder="详细描述任务内容..."></textarea>
-                    </div>
-                    <button class="btn" onclick="addTask()">添加任务</button>
-                    <button class="btn btn-secondary" onclick="loadTasks()">刷新任务</button>
-                </div>
 
-                <!-- 任务列表 -->
-                <div class="task-list" id="taskList">
-                    <div class="loading">正在加载任务...</div>
+                    <!-- 预报信息 -->
+                    <div class="forecast-section">
+                        <h3>📅 未来5天预报</h3>
+                        <div class="forecast-grid" id="forecastGrid">
+                            <!-- 预报项目将通过 JavaScript 动态生成 -->
+                        </div>
+                    </div>
                 </div>
+            </div>
+
+            <!-- 加载状态 -->
+            <div class="loading" id="loadingState" style="display: none;">
+                正在获取天气数据...
             </div>
 
             <!-- 消息提示区域 -->
             <div id="messageArea"></div>
+
+            <!-- API 信息说明 -->
+            <div class="api-info">
+                <h4>🔧 API 技术说明</h4>
+                <p><strong>为什么必须使用 API？</strong></p>
+                <p>• 天气数据需要从专业气象服务获取，无法在前端生成</p>
+                <p>• 实时数据更新需要服务器端处理</p>
+                <p>• 地理位置解析需要外部服务支持</p>
+                <p>• 数据缓存和优化需要服务端实现</p>
+                <p><strong>使用的 API：</strong> OpenWeatherMap API + Vercel Serverless Functions</p>
+            </div>
         </div>
     </div>
 
     <script>
-        let currentUser = null;
-        let tasks = [];
+        let currentWeatherData = null;
 
         // 显示消息
         function showMessage(message, type = 'success') {
@@ -381,241 +428,135 @@
             messageDiv.className = type;
             messageDiv.textContent = message;
             messageArea.appendChild(messageDiv);
-
+            
             setTimeout(() => {
                 messageDiv.remove();
-            }, 3000);
+            }, 5000);
         }
 
-        // 注册用户
-        async function registerUser() {
-            const name = document.getElementById('userName').value;
-            const email = document.getElementById('userEmail').value;
-            const message = document.getElementById('userMessage').value;
-
-            if (!name || !email) {
-                showMessage('请填写姓名和邮箱！', 'error');
+        // 获取天气数据
+        async function getWeather() {
+            const city = document.getElementById('cityInput').value.trim();
+            const country = document.getElementById('countrySelect').value;
+            const searchBtn = document.getElementById('searchBtn');
+            
+            if (!city) {
+                showMessage('请输入城市名称！', 'error');
                 return;
             }
 
+            // 显示加载状态
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('weatherDisplay').style.display = 'none';
+            document.getElementById('locationInfo').style.display = 'none';
+            searchBtn.disabled = true;
+            searchBtn.textContent = '查询中...';
+
             try {
-                const response = await fetch('/api/users', {
+                // 调用我们的 Vercel API
+                const response = await fetch('/api/weather', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ name, email, message })
+                    body: JSON.stringify({ 
+                        city: city,
+                        country: country 
+                    })
                 });
 
                 const data = await response.json();
-
+                
                 if (response.ok) {
-                    currentUser = data.data;
-                    showMessage(`欢迎 ${name}！用户注册成功`, 'success');
-
-                    // 更新欢迎消息
-                    document.getElementById('welcomeMessage').innerHTML = `
-                        <h2>👋 欢迎回来，${name}！</h2>
-                        <p>你的邮箱：${email} | 用户ID：${currentUser.id}</p>
-                    `;
-
-                    // 显示任务管理区域
-                    document.getElementById('tasksSection').style.display = 'block';
-                    document.getElementById('statsSection').style.display = 'grid';
-
-                    // 加载任务
-                    loadTasks();
+                    currentWeatherData = data;
+                    displayWeather(data);
+                    showMessage(`成功获取 ${city} 的天气信息！`, 'success');
                 } else {
-                    showMessage(data.error || '注册失败', 'error');
+                    showMessage(data.error || '获取天气数据失败', 'error');
                 }
             } catch (error) {
-                showMessage(`注册失败：${error.message}`, 'error');
+                showMessage(`网络错误：${error.message}`, 'error');
+            } finally {
+                // 隐藏加载状态
+                document.getElementById('loadingState').style.display = 'none';
+                searchBtn.disabled = false;
+                searchBtn.textContent = '查询天气';
             }
         }
 
-        // 获取问候
-        async function getGreeting() {
-            const name = document.getElementById('userName').value || '世界';
+        // 显示天气数据
+        function displayWeather(data) {
+            // 显示位置信息
+            const locationInfo = document.getElementById('locationInfo');
+            const locationText = document.getElementById('locationText');
+            locationText.textContent = `${data.location.name}, ${data.location.country} (${data.location.lat}, ${data.location.lon})`;
+            locationInfo.style.display = 'block';
 
-            try {
-                const response = await fetch(`/api/hello?name=${encodeURIComponent(name)}`);
-                const data = await response.json();
+            // 显示当前天气
+            const currentWeather = data.current;
+            document.getElementById('currentIcon').textContent = getWeatherIcon(currentWeather.weather[0].main);
+            document.getElementById('currentTemp').textContent = `${Math.round(currentWeather.main.temp)}°C`;
+            document.getElementById('currentDesc').textContent = currentWeather.weather[0].description;
+            document.getElementById('humidity').textContent = `${currentWeather.main.humidity}%`;
+            document.getElementById('windSpeed').textContent = `${currentWeather.wind.speed} m/s`;
+            document.getElementById('pressure').textContent = `${currentWeather.main.pressure} hPa`;
+            document.getElementById('visibility').textContent = `${Math.round(currentWeather.visibility / 1000)} km`;
 
-                if (response.ok) {
-                    showMessage(data.message, 'success');
-                } else {
-                    showMessage('获取问候失败', 'error');
-                }
-            } catch (error) {
-                showMessage(`获取问候失败：${error.message}`, 'error');
-            }
+            // 显示预报
+            displayForecast(data.forecast);
+
+            // 显示天气区域
+            document.getElementById('weatherDisplay').style.display = 'block';
         }
 
-        // 加载任务
-        async function loadTasks() {
-            try {
-                const response = await fetch('/api/tasks');
-                const data = await response.json();
+        // 显示预报数据
+        function displayForecast(forecastData) {
+            const forecastGrid = document.getElementById('forecastGrid');
+            forecastGrid.innerHTML = '';
 
-                if (response.ok) {
-                    tasks = data.tasks || [];
-                    renderTasks();
-                    updateStats();
-                } else {
-                    showMessage('加载任务失败', 'error');
-                }
-            } catch (error) {
-                showMessage(`加载任务失败：${error.message}`, 'error');
-            }
-        }
-
-        // 添加任务
-        async function addTask() {
-            const title = document.getElementById('taskTitle').value;
-            const description = document.getElementById('taskDescription').value;
-
-            if (!title.trim()) {
-                showMessage('请输入任务标题！', 'error');
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/tasks', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ title, description })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    showMessage('任务添加成功！', 'success');
-                    document.getElementById('taskTitle').value = '';
-                    document.getElementById('taskDescription').value = '';
-                    loadTasks();
-                } else {
-                    showMessage(data.error || '添加任务失败', 'error');
-                }
-            } catch (error) {
-                showMessage(`添加任务失败：${error.message}`, 'error');
-            }
-        }
-
-        // 更新任务状态
-        async function updateTask(taskId, completed) {
-            try {
-                const response = await fetch(`/api/tasks?id=${taskId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ completed })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    showMessage('任务状态已更新！', 'success');
-                    loadTasks();
-                } else {
-                    showMessage(data.error || '更新失败', 'error');
-                }
-            } catch (error) {
-                showMessage(`更新失败：${error.message}`, 'error');
-            }
-        }
-
-        // 删除任务
-        async function deleteTask(taskId) {
-            if (!confirm('确定要删除这个任务吗？')) {
-                return;
-            }
-
-            try {
-                const response = await fetch(`/api/tasks?id=${taskId}`, {
-                    method: 'DELETE'
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    showMessage('任务已删除！', 'success');
-                    loadTasks();
-                } else {
-                    showMessage(data.error || '删除失败', 'error');
-                }
-            } catch (error) {
-                showMessage(`删除失败：${error.message}`, 'error');
-            }
-        }
-
-        // 渲染任务列表
-        function renderTasks() {
-            const taskList = document.getElementById('taskList');
-
-            if (tasks.length === 0) {
-                taskList.innerHTML = '<div class="loading">暂无任务，点击"添加任务"开始创建吧！</div>';
-                return;
-            }
-
-            taskList.innerHTML = tasks.map(task => `
-                <div class="task-item">
-                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} 
-                           onchange="updateTask(${task.id}, this.checked)">
-                    <div class="task-content">
-                        <div class="task-title" style="text-decoration: ${task.completed ? 'line-through' : 'none'}; opacity: ${task.completed ? '0.6' : '1'}">
-                            ${task.title}
-                        </div>
-                        <div class="task-description">${task.description || '无描述'}</div>
-                    </div>
-                    <div class="task-actions">
-                        <button class="btn btn-sm btn-danger" onclick="deleteTask(${task.id})">删除</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // 更新统计信息
-        function updateStats() {
-            const totalTasks = tasks.length;
-            const completedTasks = tasks.filter(task => task.completed).length;
-            const pendingTasks = totalTasks - completedTasks;
-
-            document.getElementById('totalTasks').textContent = totalTasks;
-            document.getElementById('completedTasks').textContent = completedTasks;
-            document.getElementById('pendingTasks').textContent = pendingTasks;
-        }
-
-        // 页面加载完成后自动加载任务（如果有用户信息）
-        document.addEventListener('DOMContentLoaded', function () {
-            // 检查是否有保存的用户信息
-            const savedUser = localStorage.getItem('currentUser');
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                document.getElementById('userName').value = currentUser.name;
-                document.getElementById('userEmail').value = currentUser.email;
-                document.getElementById('userMessage').value = currentUser.message;
-
-                document.getElementById('welcomeMessage').innerHTML = `
-                    <h2>👋 欢迎回来，${currentUser.name}！</h2>
-                    <p>你的邮箱：${currentUser.email} | 用户ID：${currentUser.id}</p>
+            forecastData.list.slice(0, 5).forEach((day, index) => {
+                const date = new Date(day.dt * 1000);
+                const dayName = date.toLocaleDateString('zh-CN', { weekday: 'short' });
+                
+                const forecastItem = document.createElement('div');
+                forecastItem.className = 'forecast-item';
+                forecastItem.innerHTML = `
+                    <div class="forecast-date">${dayName}</div>
+                    <div class="forecast-icon">${getWeatherIcon(day.weather[0].main)}</div>
+                    <div class="forecast-temp">${Math.round(day.main.temp_max)}°/${Math.round(day.main.temp_min)}°</div>
+                    <div class="forecast-desc">${day.weather[0].description}</div>
                 `;
+                forecastGrid.appendChild(forecastItem);
+            });
+        }
 
-                document.getElementById('tasksSection').style.display = 'block';
-                document.getElementById('statsSection').style.display = 'grid';
-                loadTasks();
+        // 获取天气图标
+        function getWeatherIcon(weatherMain) {
+            const icons = {
+                'Clear': '☀️',
+                'Clouds': '☁️',
+                'Rain': '🌧️',
+                'Drizzle': '🌦️',
+                'Thunderstorm': '⛈️',
+                'Snow': '❄️',
+                'Mist': '🌫️',
+                'Fog': '🌫️',
+                'Haze': '🌫️'
+            };
+            return icons[weatherMain] || '🌤️';
+        }
+
+        // 回车键搜索
+        document.getElementById('cityInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                getWeather();
             }
         });
 
-        // 保存用户信息到本地存储
-        function saveUserToLocal() {
-            if (currentUser) {
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            }
-        }
+        // 页面加载完成后自动查询北京天气
+        document.addEventListener('DOMContentLoaded', function() {
+            getWeather();
+        });
     </script>
 </body>
-
 </html>
