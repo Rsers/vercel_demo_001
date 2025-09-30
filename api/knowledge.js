@@ -11,19 +11,64 @@ export default async function handler(req, res) {
         return;
     }
 
-    // 简单的内存存储（生产环境建议使用数据库）
-    if (!global.knowledgeBase) {
-        global.knowledgeBase = [];
+    // 支持 GET 和 POST 请求
+    if (req.method !== 'GET' && req.method !== 'POST') {
+        return res.status(405).json({ error: '只支持 GET 和 POST 请求' });
     }
 
+    // 简单的内存存储（生产环境建议使用数据库）
+    if (!global.knowledgeBase) {
+        global.knowledgeBase = [
+            {
+                id: 'demo-1',
+                content: '我们的产品支持7x24小时在线服务，随时为您提供帮助。',
+                category: 'service',
+                timestamp: new Date().toISOString(),
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 'demo-2',
+                content: '产品保修期为一年，在保修期内提供免费维修服务。',
+                category: 'policy',
+                timestamp: new Date().toISOString(),
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 'demo-3',
+                content: '如需技术支持，请发送邮件至 support@example.com 或拨打客服热线 400-123-4567。',
+                category: 'technical',
+                timestamp: new Date().toISOString(),
+                created_at: new Date().toISOString()
+            }
+        ];
+        console.log('📚 初始化资料库存储，包含示例数据');
+    }
+
+    console.log(`📊 当前资料库条目数: ${global.knowledgeBase.length}`);
+
     try {
-        const { action, content, category = 'general', id } = req.body;
+        // 处理 GET 和 POST 请求
+        let action, content, category = 'general', id;
+
+        if (req.method === 'GET') {
+            // GET 请求从 query 参数获取
+            action = req.query.action;
+            category = req.query.category || 'general';
+        } else if (req.method === 'POST') {
+            // POST 请求从 body 获取
+            action = req.body.action;
+            content = req.body.content;
+            category = req.body.category || 'general';
+            id = req.body.id;
+        }
+
+        console.log(`📚 资料库操作: ${action}, 方法: ${req.method}`);
 
         switch (action) {
             case 'add':
                 return handleAddKnowledge(req, res, content, category);
             case 'get':
-                return handleGetKnowledge(req, res);
+                return handleGetKnowledge(req, res, category);
             case 'delete':
                 return handleDeleteKnowledge(req, res, id);
             case 'search':
@@ -67,13 +112,13 @@ function handleAddKnowledge(req, res, content, category) {
 }
 
 // 获取所有知识条目
-function handleGetKnowledge(req, res) {
-    const { category } = req.query;
-
+function handleGetKnowledge(req, res, category) {
     let filteredKnowledge = global.knowledgeBase;
     if (category && category !== 'all') {
         filteredKnowledge = global.knowledgeBase.filter(item => item.category === category);
     }
+
+    console.log(`📖 获取资料库: ${category || 'all'}, 共 ${filteredKnowledge.length} 条`);
 
     res.status(200).json({
         success: true,
