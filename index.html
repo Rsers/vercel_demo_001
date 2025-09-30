@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,7 +34,7 @@
         .header h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .header p {
@@ -45,7 +46,7 @@
             background: white;
             border-radius: 15px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
         .user-section {
@@ -79,7 +80,8 @@
             color: #555;
         }
 
-        .form-group input, .form-group textarea {
+        .form-group input,
+        .form-group textarea {
             width: 100%;
             padding: 12px;
             border: 2px solid #e9ecef;
@@ -88,7 +90,8 @@
             transition: border-color 0.3s;
         }
 
-        .form-group input:focus, .form-group textarea:focus {
+        .form-group input:focus,
+        .form-group textarea:focus {
             outline: none;
             border-color: #007bff;
         }
@@ -159,7 +162,7 @@
             background: white;
             border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .task-item {
@@ -273,12 +276,12 @@
             .form-row {
                 grid-template-columns: 1fr;
             }
-            
+
             .task-item {
                 flex-direction: column;
                 align-items: flex-start;
             }
-            
+
             .task-actions {
                 width: 100%;
                 justify-content: flex-end;
@@ -286,6 +289,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -340,7 +344,7 @@
             <!-- 任务管理区域 -->
             <div class="tasks-section" id="tasksSection" style="display: none;">
                 <h3>📝 任务管理</h3>
-                
+
                 <!-- 添加任务表单 -->
                 <div class="task-form">
                     <div class="form-group">
@@ -377,7 +381,7 @@
             messageDiv.className = type;
             messageDiv.textContent = message;
             messageArea.appendChild(messageDiv);
-            
+
             setTimeout(() => {
                 messageDiv.remove();
             }, 3000);
@@ -404,21 +408,21 @@
                 });
 
                 const data = await response.json();
-                
+
                 if (response.ok) {
                     currentUser = data.data;
                     showMessage(`欢迎 ${name}！用户注册成功`, 'success');
-                    
+
                     // 更新欢迎消息
                     document.getElementById('welcomeMessage').innerHTML = `
                         <h2>👋 欢迎回来，${name}！</h2>
                         <p>你的邮箱：${email} | 用户ID：${currentUser.id}</p>
                     `;
-                    
+
                     // 显示任务管理区域
                     document.getElementById('tasksSection').style.display = 'block';
                     document.getElementById('statsSection').style.display = 'grid';
-                    
+
                     // 加载任务
                     loadTasks();
                 } else {
@@ -432,11 +436,11 @@
         // 获取问候
         async function getGreeting() {
             const name = document.getElementById('userName').value || '世界';
-            
+
             try {
                 const response = await fetch(`/api/hello?name=${encodeURIComponent(name)}`);
                 const data = await response.json();
-                
+
                 if (response.ok) {
                     showMessage(data.message, 'success');
                 } else {
@@ -452,7 +456,7 @@
             try {
                 const response = await fetch('/api/tasks');
                 const data = await response.json();
-                
+
                 if (response.ok) {
                     tasks = data.tasks || [];
                     renderTasks();
@@ -485,7 +489,7 @@
                 });
 
                 const data = await response.json();
-                
+
                 if (response.ok) {
                     showMessage('任务添加成功！', 'success');
                     document.getElementById('taskTitle').value = '';
@@ -511,7 +515,7 @@
                 });
 
                 const data = await response.json();
-                
+
                 if (response.ok) {
                     showMessage('任务状态已更新！', 'success');
                     loadTasks();
@@ -535,7 +539,7 @@
                 });
 
                 const data = await response.json();
-                
+
                 if (response.ok) {
                     showMessage('任务已删除！', 'success');
                     loadTasks();
@@ -550,7 +554,7 @@
         // 渲染任务列表
         function renderTasks() {
             const taskList = document.getElementById('taskList');
-            
+
             if (tasks.length === 0) {
                 taskList.innerHTML = '<div class="loading">暂无任务，点击"添加任务"开始创建吧！</div>';
                 return;
@@ -585,7 +589,7 @@
         }
 
         // 页面加载完成后自动加载任务（如果有用户信息）
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // 检查是否有保存的用户信息
             const savedUser = localStorage.getItem('currentUser');
             if (savedUser) {
@@ -593,12 +597,12 @@
                 document.getElementById('userName').value = currentUser.name;
                 document.getElementById('userEmail').value = currentUser.email;
                 document.getElementById('userMessage').value = currentUser.message;
-                
+
                 document.getElementById('welcomeMessage').innerHTML = `
                     <h2>👋 欢迎回来，${currentUser.name}！</h2>
                     <p>你的邮箱：${currentUser.email} | 用户ID：${currentUser.id}</p>
                 `;
-                
+
                 document.getElementById('tasksSection').style.display = 'block';
                 document.getElementById('statsSection').style.display = 'grid';
                 loadTasks();
@@ -613,4 +617,5 @@
         }
     </script>
 </body>
+
 </html>
