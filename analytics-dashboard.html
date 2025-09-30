@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vercel 监控仪表板</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #666;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-card h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #0070f3;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .chart-container h3 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .chart {
+            height: 300px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: flex;
+            align-items: end;
+            padding: 1rem;
+            gap: 0.5rem;
+        }
+
+        .chart-bar {
+            background: linear-gradient(to top, #0070f3, #00d4ff);
+            border-radius: 4px 4px 0 0;
+            min-width: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .chart-bar:hover {
+            background: linear-gradient(to top, #0051cc, #0099cc);
+        }
+
+        .events-log {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .events-log h3 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .event-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .event-item:last-child {
+            border-bottom: none;
+        }
+
+        .event-type {
+            font-weight: bold;
+            color: #0070f3;
+        }
+
+        .event-time {
+            color: #666;
+            float: right;
+        }
+
+        .controls {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            background: #0070f3;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 0.25rem;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            background: #0051cc;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+
+        @media (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart {
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>📊 Vercel 监控仪表板</h1>
+            <p>实时性能监控和用户行为分析</p>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="startMonitoring()">开始监控</button>
+            <button class="btn btn-secondary" onclick="clearLogs()">清空日志</button>
+            <button class="btn btn-secondary" onclick="exportData()">导出数据</button>
+            <button class="btn btn-secondary" onclick="simulateLoad()">模拟负载</button>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h3>页面加载时间</h3>
+                <div class="metric-value" id="load-time">0ms</div>
+                <div class="metric-label">首次内容绘制</div>
+            </div>
+
+            <div class="metric-card">
+                <h3>API 响应时间</h3>
+                <div class="metric-value" id="api-time">0ms</div>
+                <div class="metric-label">平均响应时间</div>
+            </div>
+
+            <div class="metric-card">
+                <h3>用户操作</h3>
+                <div class="metric-value" id="user-actions">0</div>
+                <div class="metric-label">总操作次数</div>
+            </div>
+
+            <div class="metric-card">
+                <h3>错误数量</h3>
+                <div class="metric-value" id="error-count">0</div>
+                <div class="metric-label">错误事件</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h3>性能趋势图</h3>
+            <div class="chart" id="performance-chart">
+                <!-- 动态生成图表 -->
+            </div>
+        </div>
+
+        <div class="events-log">
+            <h3>实时事件日志</h3>
+            <div id="events-container">
+                <!-- 动态生成事件日志 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 监控数据存储
+        const monitoringData = {
+            pageLoadTime: 0,
+            apiResponseTimes: [],
+            userActions: 0,
+            errors: 0,
+            events: []
+        };
+
+        // 性能监控类
+        class AnalyticsDashboard {
+            constructor() {
+                this.startTime = performance.now();
+                this.init();
+            }
+
+            init() {
+                this.setupPerformanceObserver();
+                this.startRealTimeUpdates();
+                this.trackPageLoad();
+            }
+
+            // 设置性能观察器
+            setupPerformanceObserver() {
+                if ('PerformanceObserver' in window) {
+                    const observer = new PerformanceObserver((list) => {
+                        for (const entry of list.getEntries()) {
+                            this.handlePerformanceEntry(entry);
+                        }
+                    });
+
+                    observer.observe({ entryTypes: ['navigation', 'paint', 'measure'] });
+                }
+            }
+
+            // 处理性能条目
+            handlePerformanceEntry(entry) {
+                if (entry.entryType === 'navigation') {
+                    this.updateLoadTime(entry.loadEventEnd - entry.loadEventStart);
+                } else if (entry.entryType === 'paint') {
+                    if (entry.name === 'first-contentful-paint') {
+                        this.updateLoadTime(entry.startTime);
+                    }
+                }
+            }
+
+            // 跟踪页面加载
+            trackPageLoad() {
+                window.addEventListener('load', () => {
+                    setTimeout(() => {
+                        const loadTime = performance.now() - this.startTime;
+                        this.updateLoadTime(loadTime);
+                        this.logEvent('页面加载完成', { loadTime: loadTime });
+                    }, 100);
+                });
+            }
+
+            // 更新加载时间
+            updateLoadTime(time) {
+                monitoringData.pageLoadTime = Math.round(time);
+                document.getElementById('load-time').textContent = monitoringData.pageLoadTime + 'ms';
+            }
+
+            // 更新 API 响应时间
+            updateApiTime(time) {
+                monitoringData.apiResponseTimes.push(time);
+                const avgTime = monitoringData.apiResponseTimes.reduce((a, b) => a + b, 0) / monitoringData.apiResponseTimes.length;
+                document.getElementById('api-time').textContent = Math.round(avgTime) + 'ms';
+            }
+
+            // 增加用户操作计数
+            incrementUserActions() {
+                monitoringData.userActions++;
+                document.getElementById('user-actions').textContent = monitoringData.userActions;
+            }
+
+            // 增加错误计数
+            incrementErrors() {
+                monitoringData.errors++;
+                document.getElementById('error-count').textContent = monitoringData.errors;
+            }
+
+            // 记录事件
+            logEvent(type, data = {}) {
+                const event = {
+                    type: type,
+                    data: data,
+                    timestamp: new Date().toISOString(),
+                    time: new Date().toLocaleTimeString()
+                };
+
+                monitoringData.events.unshift(event);
+                if (monitoringData.events.length > 50) {
+                    monitoringData.events = monitoringData.events.slice(0, 50);
+                }
+
+                this.updateEventsDisplay();
+            }
+
+            // 更新事件显示
+            updateEventsDisplay() {
+                const container = document.getElementById('events-container');
+                container.innerHTML = monitoringData.events.map(event => `
+                    <div class="event-item">
+                        <span class="event-type">${event.type}</span>
+                        <span class="event-time">${event.time}</span>
+                        <br>
+                        <small>${JSON.stringify(event.data)}</small>
+                    </div>
+                `).join('');
+            }
+
+            // 更新性能图表
+            updatePerformanceChart() {
+                const chart = document.getElementById('performance-chart');
+                const data = monitoringData.apiResponseTimes.slice(-20); // 最近20个数据点
+
+                if (data.length === 0) return;
+
+                const maxValue = Math.max(...data);
+                chart.innerHTML = data.map((value, index) => {
+                    const height = (value / maxValue) * 100;
+                    return `<div class="chart-bar" style="height: ${height}%" title="API ${index + 1}: ${Math.round(value)}ms"></div>`;
+                }).join('');
+            }
+
+            // 开始实时更新
+            startRealTimeUpdates() {
+                setInterval(() => {
+                    this.updatePerformanceChart();
+                }, 1000);
+            }
+        }
+
+        // 创建全局监控实例
+        const dashboard = new AnalyticsDashboard();
+
+        // 控制函数
+        function startMonitoring() {
+            dashboard.logEvent('监控启动', { timestamp: new Date().toISOString() });
+            dashboard.incrementUserActions();
+        }
+
+        function clearLogs() {
+            monitoringData.events = [];
+            dashboard.updateEventsDisplay();
+            dashboard.logEvent('日志清空', {});
+            dashboard.incrementUserActions();
+        }
+
+        function exportData() {
+            const dataStr = JSON.stringify(monitoringData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `analytics-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+
+            dashboard.logEvent('数据导出', { records: monitoringData.events.length });
+            dashboard.incrementUserActions();
+        }
+
+        function simulateLoad() {
+            dashboard.logEvent('模拟负载开始', {});
+            dashboard.incrementUserActions();
+
+            // 模拟多个 API 调用
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const responseTime = Math.random() * 1000 + 100; // 100-1100ms
+                    dashboard.updateApiTime(responseTime);
+                    dashboard.logEvent('模拟 API 调用', {
+                        responseTime: Math.round(responseTime),
+                        requestId: i + 1
+                    });
+                }, i * 200);
+            }
+        }
+
+        // 模拟用户行为
+        document.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                dashboard.incrementUserActions();
+                dashboard.logEvent('按钮点击', {
+                    buttonText: e.target.textContent,
+                    element: e.target.tagName
+                });
+            }
+        });
+
+        // 模拟错误
+        window.addEventListener('error', (e) => {
+            dashboard.incrementErrors();
+            dashboard.logEvent('JavaScript 错误', {
+                message: e.message,
+                filename: e.filename,
+                lineno: e.lineno
+            });
+        });
+
+        // 模拟网络错误
+        const originalFetch = window.fetch;
+        window.fetch = function (...args) {
+            return originalFetch.apply(this, args).catch(error => {
+                dashboard.incrementErrors();
+                dashboard.logEvent('网络错误', {
+                    url: args[0],
+                    error: error.message
+                });
+                throw error;
+            });
+        };
+
+        // 页面加载完成后记录初始事件
+        window.addEventListener('load', () => {
+            dashboard.logEvent('仪表板初始化', {
+                userAgent: navigator.userAgent,
+                screenResolution: `${screen.width}x${screen.height}`
+            });
+        });
+    </script>
+</body>
+
+</html>

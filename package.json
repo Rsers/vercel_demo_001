@@ -19,7 +19,9 @@
   "author": "Rsers",
   "license": "MIT",
   "dependencies": {
+    "@vercel/analytics": "^1.5.0",
     "@vercel/postgres": "^0.10.0",
+    "@vercel/speed-insights": "^1.2.0",
     "vercel": "^32.0.0"
   },
   "devDependencies": {

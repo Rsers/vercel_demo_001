@@ -317,9 +317,103 @@
         </div>
     </div>
 
+    <!-- 添加监控脚本 -->
+    <script>
+        // 性能监控
+        class PerformanceMonitor {
+            constructor() {
+                this.metrics = {};
+                this.startTime = performance.now();
+            }
+
+            startMeasure(name) {
+                this.metrics[name] = {
+                    startTime: performance.now()
+                };
+            }
+
+            endMeasure(name) {
+                if (this.metrics[name]) {
+                    this.metrics[name].endTime = performance.now();
+                    this.metrics[name].duration = this.metrics[name].endTime - this.metrics[name].startTime;
+                    console.log(`${name} took ${this.metrics[name].duration.toFixed(2)}ms`);
+                    return this.metrics[name].duration;
+                }
+                return 0;
+            }
+
+            getPageLoadMetrics() {
+                const navigation = performance.getEntriesByType('navigation')[0];
+                return {
+                    domContentLoaded: navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart,
+                    loadComplete: navigation.loadEventEnd - navigation.loadEventStart,
+                    firstPaint: this.getFirstPaint(),
+                    firstContentfulPaint: this.getFirstContentfulPaint()
+                };
+            }
+
+            getFirstPaint() {
+                const paintEntries = performance.getEntriesByType('paint');
+                const fpEntry = paintEntries.find(entry => entry.name === 'first-paint');
+                return fpEntry ? fpEntry.startTime : 0;
+            }
+
+            getFirstContentfulPaint() {
+                const paintEntries = performance.getEntriesByType('paint');
+                const fcpEntry = paintEntries.find(entry => entry.name === 'first-contentful-paint');
+                return fcpEntry ? fcpEntry.startTime : 0;
+            }
+
+            reportMetrics() {
+                const metrics = this.getPageLoadMetrics();
+                console.log('Page Load Metrics:', metrics);
+                return metrics;
+            }
+        }
+
+        // 创建全局性能监控实例
+        const performanceMonitor = new PerformanceMonitor();
+
+        // 用户行为追踪
+        function trackUserAction(action, properties = {}) {
+            console.log('User Action:', {
+                action: action,
+                properties: properties,
+                timestamp: new Date().toISOString()
+            });
+
+            // 在实际应用中，这里会发送到 Vercel Analytics
+            // track(action, properties);
+        }
+
+        // 错误追踪
+        function trackError(errorType, errorMessage, context = {}) {
+            console.log('Error Tracked:', {
+                error_type: errorType,
+                error_message: errorMessage,
+                context: context,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // 页面加载完成后报告性能指标
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                performanceMonitor.reportMetrics();
+                trackUserAction('page_load_complete', {
+                    page: 'database_demo',
+                    load_time: performance.now() - performanceMonitor.startTime
+                });
+            }, 1000);
+        });
+    </script>
+
     <script>
         // API 调用函数
         async function callAPI(action, data = null) {
+            performanceMonitor.startMeasure(`api_${action}`);
+            trackUserAction('api_call_start', { action: action, data: data });
+
             try {
                 const response = await fetch('/api/db-working', {
                     method: 'POST',
@@ -344,8 +438,22 @@
                     };
                 }
 
+                const duration = performanceMonitor.endMeasure(`api_${action}`);
+                trackUserAction('api_call_success', {
+                    action: action,
+                    duration: duration,
+                    response_time: duration
+                });
+
                 return result;
             } catch (error) {
+                const duration = performanceMonitor.endMeasure(`api_${action}`);
+                trackError('api_call_error', error.message, {
+                    action: action,
+                    duration: duration,
+                    data: data
+                });
+
                 console.error('API 调用错误:', error);
                 return { success: false, error: '网络错误: ' + error.message };
             }
@@ -359,13 +467,16 @@
 
         // 初始化数据库
         async function initDatabase() {
+            trackUserAction('database_init_start');
             showMessage('init-result', '正在初始化数据库...', 'info');
 
             const result = await callAPI('init');
 
             if (result.success) {
+                trackUserAction('database_init_success');
                 showMessage('init-result', '✅ ' + result.message, 'success');
             } else {
+                trackError('database_init_error', result.error);
                 showMessage('init-result', '❌ ' + result.error, 'error');
             }
         }
